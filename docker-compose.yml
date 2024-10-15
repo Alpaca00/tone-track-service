@@ -1,0 +1,13 @@
+version: "3.5"
+
+services:
+  app:
+    build:
+      dockerfile: devops/build/Dockerfile
+      context: "."
+    image: alpaca00/tone-track
+    env_file: .env
+    ports:
+      - "5000:81"
+      - "443:443"
+    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 1 -b 0.0.0.0:81 wsgi:app"

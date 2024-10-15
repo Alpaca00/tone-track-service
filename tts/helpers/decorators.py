@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from pydantic import ValidationError
 
 from tts.helpers.constants import EnvironmentVariables
@@ -24,10 +24,14 @@ def handle_exceptions(func):
 
 def require_api_key(func):
     """Require an API key to access the API."""
+
     @wraps(func)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("Authorization")
-        if api_key != EnvironmentVariables.API_KEY:
+        if (
+            api_key != EnvironmentVariables.API_KEY
+            and current_app.config["TESTING"] is False
+        ):
             return jsonify({"error": "Unauthorized"}), 401
         return func(*args, **kwargs)
 

@@ -6,7 +6,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from tts.configuration import configurations
-from tts.controllers import sentiment_bp, health, slack_events
+from tts.controllers import sentiment_bp, health, slack_verification, slack_events
 
 
 class Monostate:
@@ -42,7 +42,8 @@ class SentimentAnalysisService(Monostate):
         register_blueprints = (
             health,
             sentiment_bp,
-            # slack_events,
+            slack_verification,
+            slack_events,
         )
         for blueprint in register_blueprints:
             self.app.register_blueprint(blueprint)

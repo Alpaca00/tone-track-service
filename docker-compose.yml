@@ -9,4 +9,4 @@ services:
     env_file: .env
     ports:
       - "81:3000"
-    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 1 -b 0.0.0.0:81 wsgi:app"
+    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 4 -k gthread -b 0.0.0.0:81 wsgi:app"

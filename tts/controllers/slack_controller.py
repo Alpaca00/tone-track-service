@@ -52,15 +52,18 @@ def redirect_to_url_verification(data):
 
 def handle_event_callback(data: dict):
     """Handles the event callback from Slack."""
-    event = data.get("event")[0]
+    event = data.get("event")
+    if not event:
+        return jsonify({"error": "Event not found."}), 400
+
     message = event.get("text")
-    token = data.get("token")
-    channel_id = data.get("channel")
+    channel_id = event.get("channel")
     username = event.get("user")
+
     if not is_english(message):
         return jsonify({"message": "Only English messages are supported."}), 200
 
-    sentiment_result = get_sentiment_analysis(message)
+    sentiment_result = analyze_sentiment(message)
     response_processed = {
         "text": message,
         "sentiment_result": sentiment_result,
@@ -68,7 +71,7 @@ def handle_event_callback(data: dict):
     send_message_to_slack(
         sentiment_result,
         text=message,
-        token=token,
+        token=EnvironmentVariables.SLACK_BOT_OAUTH_TOKEN,
         channel=channel_id,
         username=username,
     )
@@ -105,7 +108,7 @@ def is_english(text):
         return False
 
 
-def get_sentiment_analysis(message):
+def analyze_sentiment(message):
     """Sends a request for sentiment analysis."""
     config = Config()
     url = config.resources.internal_server_url

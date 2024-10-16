@@ -1,9 +1,20 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
-slack_events = Blueprint("slack_events", __name__)
+from tts.models.slack_app import (
+    SlackVerificationRequest,
+    SlackVerificationChallengeResponse,
+)
+
+slack_verification = Blueprint("slack_verification", __name__)
 
 
-@slack_events.route("api/v1/slack-events", methods=["POST"])
+@slack_verification.route("/api/v1/slack/verification", methods=["POST"])
 def slack_events():
     """Slack events API."""
-    pass
+    data = request.get_json()
+    slack_request = SlackVerificationRequest(**data)
+
+    response = SlackVerificationChallengeResponse(
+        challenge=slack_request.challenge
+    )
+    return response.model_dump_json()

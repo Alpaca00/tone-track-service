@@ -41,6 +41,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create file with secret
+        run: echo "API_KEY=${{ secrets.API_KEY }}" > .env
+
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 

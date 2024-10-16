@@ -11,14 +11,12 @@ Your contribution can help provide essential resources, education, and support t
 
 2. **Spread the Word**: Share our mission with your friends, family, and social media followers. Raising awareness is crucial in our fight to support these children.
 
-3. **Become a Volunteer**: If you want to get more involved, consider volunteering your time and skills to help our cause. Your involvement can create a lasting impact on the lives of many children.
-
-4. **Corporate Sponsorship**: If you represent a business, consider partnering with us to make a difference. Corporate sponsorship can provide significant support to our programs and initiatives.
+3. **Corporate Sponsorship**: If you represent a business, consider partnering with us to make a difference. Corporate sponsorship can provide significant support to our programs and initiatives.
 
 Your generosity can bring hope and change to the lives of countless children. Thank you for considering a donation to **Children of the War**. Together, we can make a positive impact!
 
-## Learn More About Us
+## Learn More About **Children of the War** Charity:
 
-For more information about our mission, projects, and how your donations are used, please visit our website: [Children of the War](https://childrenofthewar.org/eng) or social media [pages](https://www.facebook.com/childrenofwar.charity).
+For more information about our mission, projects, and how your donations are used, please visit our website: [Children of the War](https://childrenofthewar.org/eng) or social media [facebook](https://www.facebook.com/childrenofwar.charity).
 
 Thank you for your support!

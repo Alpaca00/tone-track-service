@@ -25,6 +25,7 @@ To install the required dependencies, run the following command:
 git clone https://github.com/Alpaca00/tone-track-service.git
 cd tone-track-service
 echo "API_KEY=YOUR_API_KEY" > .env
+echo "SLACK_BOT_OAUTH_TOKEN=YOUR_SLACK_BOT_AUTH_TOKEN" >> .env
 docker-compose up
 ```
 

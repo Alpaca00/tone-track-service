@@ -5,11 +5,14 @@ from tests.unittest.conftest import MockSentimentRequest, MockSentimentResponse
 
 
 @pytest.mark.sentiment_analysis
-def test_sentiment_analysis_valid_input(client, mock_nltk):
+def test_sentiment_analysis_valid_input(client, mock_nltk, config_project):
     """Test the sentiment analysis with valid input."""
     response = client.post(
         "/api/v1/sentiment-analysis",
-        json={"text": MockSentimentRequest().text, "process_text": True},
+        json={
+            "text": MockSentimentRequest().text,
+            "sentiment_type": config_project.sentiment_type,
+        },
     )
 
     actual_result = response.get_json()
@@ -30,10 +33,13 @@ def test_sentiment_analysis_valid_input(client, mock_nltk):
     ],
     ids=["empty_text", "long_text"],
 )
-def test_sentiment_analysis_invalid_input(client: FlaskClient, text):
+def test_sentiment_analysis_invalid_input(
+    client: FlaskClient, text, config_project
+):
     """Test the sentiment analysis with invalid input."""
     response = client.post(
-        "/api/v1/sentiment-analysis", json={"text": text, "process_text": True}
+        "/api/v1/sentiment-analysis",
+        json={"text": text, "sentiment_type": config_project.sentiment_type},
     )
     json_data = response.get_json()
 
@@ -41,11 +47,14 @@ def test_sentiment_analysis_invalid_input(client: FlaskClient, text):
 
 
 @pytest.mark.sentiment_analysis
-def test_sentiment_analysis_internal_error(client: FlaskClient):
+def test_sentiment_analysis_internal_error(client: FlaskClient, config_project):
     """Test the sentiment analysis to ensure it handles internal errors."""
     response = client.post(
         "/api/v1/sentiment-analysis",
-        json={"invalid_field": "Some text", "process_text": True},
+        json={
+            "invalid_field": "Some text",
+            "sentiment_type": config_project.sentiment_type,
+        },
     )
     json_data = response.get_json()
 

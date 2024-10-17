@@ -108,15 +108,16 @@ def is_english(text):
         return False
 
 
-def analyze_sentiment(message):
+def analyze_sentiment(message: str,):
     """Sends a request for sentiment analysis."""
     config = Config()
     url = config.resources.internal_server_url
+
     response = requests.post(
         f"{url}/api/v1/sentiment-analysis",
         json={
             "text": message,
-            "process_text": True,
+            "sentiment_type": config.resources.sentiment_type,
         },
         headers={"Authorization": EnvironmentVariables.API_KEY},
     )

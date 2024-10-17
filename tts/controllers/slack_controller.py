@@ -117,7 +117,7 @@ def analyze_sentiment(message: str,):
         f"{url}/api/v1/sentiment-analysis",
         json={
             "text": message,
-            "sentiment_type": config.resources.sentiment_type,
+            "sentiment_type": config.project.sentiment_type,
         },
         headers={"Authorization": EnvironmentVariables.API_KEY},
     )

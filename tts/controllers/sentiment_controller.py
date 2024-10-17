@@ -1,14 +1,24 @@
 from flask import Blueprint, request, jsonify
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from transformers import pipeline
+from transformers import (
+    pipeline,
+    TFDistilBertForSequenceClassification,
+    DistilBertTokenizer,
+)
 
 from tts.helpers.decorators import handle_exceptions, require_api_key
 from tts.helpers.functions import determine_sentiment
 from tts.models.sentiment import SentimentRequest, SentimentResponse
 
+
 sentiment_bp = Blueprint("sentiment", __name__)
 sia = SentimentIntensityAnalyzer()
-transformer_sentiment = pipeline("sentiment-analysis")
+model_name = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
+tokenizer = DistilBertTokenizer.from_pretrained(model_name)
+model = TFDistilBertForSequenceClassification.from_pretrained(model_name)
+transformer_sentiment = pipeline(
+    "sentiment-analysis", model=model, tokenizer=tokenizer
+)
 
 
 @sentiment_bp.route("/api/v1/sentiment-analysis", methods=["POST"])
@@ -33,7 +43,8 @@ def sentiment_analysis() -> jsonify:
     }
     if sentiment_request.process_text:
         sentiment_result = determine_sentiment(
-            params["transformer_sentiment_scores"], params["vader_sentiment_scores"]
+            params["transformer_sentiment_scores"],
+            params["vader_sentiment_scores"],
         )
         response = SentimentResponse(
             **params,

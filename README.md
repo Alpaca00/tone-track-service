@@ -29,11 +29,9 @@ echo "SLACK_BOT_OAUTH_TOKEN=YOUR_SLACK_BOT_AUTH_TOKEN" >> .env
 docker-compose up
 ```
 
-This will install the necessary dependencies and start the server on `http://localhost:3000`.
-
 ---
 
-### 📡 Slack App Integration
+### 📩 Slack App Integration
 TODO: Add Slack app integration. Stay tuned for updates on how to integrate this service with your Slack applications for real-time sentiment tracking!
 
 ---
@@ -43,22 +41,6 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 
 ---
 
-### 🙌 Contributing
-We welcome contributions! If you have suggestions or improvements, please open an issue or submit a pull request.
-
----
-
-### 💖 DONATE
+### ❤️ DONATE
 
 If you found this project helpful or you learned something from the source code and want to thank me, please supporting this [Charity](DONATE.md)
-
-
-### 📫 Contact
-For inquiries or feedback, feel free to reach out:
-
-- Email: [alpaca00tuhe@gmail.com](mailto:alpaca00tuha@mail.com)
-
-- GitHub: [Alpaca00](https://github.com/Alpaca00)
-
-
-

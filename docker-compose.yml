@@ -5,8 +5,32 @@ services:
     build:
       dockerfile: devops/build/Dockerfile
       context: "."
-    image: alpaca00/tone-track
+    image: alpaca00/tone-track-service:latest
+    networks:
+      - tts_network
     env_file: .env
     ports:
-      - "81:3000"
-    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 4 -k gthread -b 0.0.0.0:81 wsgi:app"
+      - "5002:5000"
+    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 1 -k gthread --bind 0.0.0.0:5002 wsgi:app"
+  nginx:
+    image: nginx:1.20.1
+    networks:
+      - tts_network
+    ports:
+      - "80:80"
+    restart: always
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+      - ./nginx/conf/:/etc/nginx/conf.d/
+#      - ./certbot/www:/var/www/certbot/:ro
+    depends_on:
+      - app
+#  certbot:
+#    image: certbot/certbot:latest
+#    volumes:
+#      - ./certbot/www/:/var/www/certbot/:rw
+
+
+networks:
+  tts_network:
+    driver: bridge

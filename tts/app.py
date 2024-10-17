@@ -57,3 +57,7 @@ class SentimentAnalysisService(Monostate):
     def run(self, *args, **kwargs) -> None:
         """Run the Flask application."""
         self.app.run(*args, **kwargs)
+
+    def __call__(self, environ, start_response) -> any:
+        """Make the instance callable."""
+        return self.app(environ, start_response)

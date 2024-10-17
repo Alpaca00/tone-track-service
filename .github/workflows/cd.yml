@@ -1,0 +1,58 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from config file
+        id: get_version
+        run: |
+          VERSION=$(grep '^version' config.ini | sed 's/version = //')
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+  docker_publish:
+    needs: create_release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Create file with secrets
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" > .env
+          echo "SLACK_BOT_OAUTH_TOKEN=${{ secrets.SLACK_BOT_OAUTH_TOKEN }}" >> .env
+          echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
+
+      - name: Build Docker image with version tag
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ needs.create_release.outputs.tag_name }} -f devops/build/Dockerfile .
+
+      - name: Push Docker image with version tag
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ needs.create_release.outputs.tag_name }}
+
+      - name: Push Docker image with "latest" tag
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest
+

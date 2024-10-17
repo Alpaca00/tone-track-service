@@ -68,6 +68,9 @@ jobs:
       - name: Build Docker image with version tag
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }} -f devops/build/Dockerfile .
 
+      - name: Build Docker image with "latest" tag
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest -f devops/build/Dockerfile .
+
       - name: Push Docker image with version tag
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }}
 

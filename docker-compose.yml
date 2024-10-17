@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: devops/build/Dockerfile
       context: "."
-    image: alpaca00/tone-track-service:latest
+    image: alpaca00/tone-track-local:latest
     networks:
       - tts_network
     env_file: .env

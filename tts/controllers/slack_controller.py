@@ -1,7 +1,8 @@
-import requests
+import random
 
+import requests
 from flask import Blueprint, request, jsonify, redirect
-from langdetect import detect, DetectorFactory
+from langdetect import detect, DetectorFactory, LangDetectException
 from slack_sdk import WebClient
 
 from tts.helpers.constants import EnvironmentVariables
@@ -60,8 +61,8 @@ def handle_event_callback(data: dict):
     channel_id = event.get("channel")
     username = event.get("user")
 
-    if not is_english(message):
-        return jsonify({"message": "Only English messages are supported."}), 200
+    # if not is_english(message):
+    #     return jsonify({"message": "Only English messages are supported."}), 200
 
     sentiment_result = analyze_sentiment(message)
     response_processed = {
@@ -85,9 +86,13 @@ def send_message_to_slack(sentiment_result: str, **kwargs):
     channel = kwargs.get("channel")
     username = kwargs.get("username")
     if is_negative_sentiment(sentiment_result) and token and message:
-        message = (
-            "> This message has a negative sentiment. Please be kind to others. \n"
+        messages = (
+            "> This message has a negative sentiment. Please be kind to others. \n",
+            "> It seems this message carries a negative tone. Let's keep things positive and constructive! \n",
+            "> This message may come across as negative. A little kindness can go a long way! \n",
+            "> Your message seems to have a negative sentiment. Let’s focus on solutions and positivity! \n",
         )
+        message = random.choice(messages)
         client = WebClient(token=token)
         client.chat_postMessage(
             channel=channel, text=message, mrkdwn=True, username=username
@@ -99,16 +104,18 @@ def is_negative_sentiment(sentiment_result: str) -> bool:
     return "negative" in sentiment_result and "not" not in sentiment_result
 
 
-def is_english(text):
+def is_english(text: str) -> bool:
     """Checks if the given text is in English."""
     try:
         language = detect(text)
         return language == "en"
-    except Exception:  # noqa
-        return False
+    except (LangDetectException, Exception) as e:
+        if isinstance(e, LangDetectException):
+            return False
+        return True
 
 
-def analyze_sentiment(message: str,):
+def analyze_sentiment(message: str,) -> str:
     """Sends a request for sentiment analysis."""
     config = Config()
     url = config.resources.internal_server_url

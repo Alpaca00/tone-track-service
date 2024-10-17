@@ -17,7 +17,14 @@ jobs:
         id: get_version
         run: |
           VERSION=$(grep '^version' config.ini | sed 's/version = //')
+          echo $VERSION > version.txt
           echo "::set-output name=VERSION::$VERSION"
+
+      - name: Upload version artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: version
+          path: version.txt
 
       - name: Create GitHub Release
         id: create_release
@@ -38,6 +45,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download version artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: version
+
+      - name: Read version from file
+        id: read_version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "::set-output name=VERSION::$VERSION"
+
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
@@ -48,11 +66,10 @@ jobs:
           echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
 
       - name: Build Docker image with version tag
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.get_version.outputs.VERSION }} -f devops/build/Dockerfile .
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }} -f devops/build/Dockerfile .
 
       - name: Push Docker image with version tag
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.get_version.outputs.VERSION }}
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }}
 
       - name: Push Docker image with "latest" tag
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest
-

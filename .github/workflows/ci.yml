@@ -13,6 +13,7 @@ jobs:
       PYTHON_VERSION: 3.12.2
       PIP_CACHE_DIR: ~/.cache/pip
       API_KEY: ${{ secrets.API_KEY }}
+      TF_ENABLE_ONEDNN_OPTS: 0
 
     steps:
       - name: Checkout code
@@ -32,23 +33,3 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/
-
-  docker_publish:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-      - name: Create file with secrets
-        run: echo "API_KEY=${{ secrets.API_KEY }}/nSLACK_BOT_OAUTH_TOKEN={{ secrets.SLACK_BOT_OAUTH_TOKEN}}" > .env
-
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest -f devops/build/Dockerfile .
-
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest

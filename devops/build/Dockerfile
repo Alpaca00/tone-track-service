@@ -12,4 +12,5 @@ RUN /usr/local/bin/python -m pip install --upgrade pip \
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
+EXPOSE 5000
 CMD [""]

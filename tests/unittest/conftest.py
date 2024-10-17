@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from tts.app import SentimentAnalysisService
+from tts.helpers.functions import Config
 
 
 @pytest.fixture
@@ -15,6 +16,13 @@ def app():
 def client(app):
     """Create a test client for the app."""
     return app.test_client()
+
+
+@pytest.fixture
+def config_project():
+    """Return the configuration."""
+    config = Config()
+    return config.project
 
 
 class MockSentimentRequest:

@@ -1,6 +1,6 @@
 import pytest
 
-from tts.helpers.functions import determine_sentiment
+from tts.helpers.functions import determine_sentiment_all_models
 
 
 @pytest.mark.parametrize(
@@ -20,5 +20,5 @@ from tts.helpers.functions import determine_sentiment
 )
 def test_determine_sentiment(transformers_scores, vader_scores, expected_result):
     assert (
-        determine_sentiment(transformers_scores, vader_scores) == expected_result
+            determine_sentiment_all_models(transformers_scores, vader_scores) == expected_result
     )

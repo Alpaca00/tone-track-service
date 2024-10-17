@@ -30,60 +30,55 @@ config = Config()
 sentiment_type_from_config: final = config.project.sentiment_type
 
 
-@functools.lru_cache(maxsize=5)
-def prepare_sentiment_analysis(
-    message: str, sentiment_type_from_request: str
-) -> tuple:  # noqa  # message parameter is not used due to caching
-    """Prepare the sentiment analysis models."""
+def load_models():
+    """Load the sentiment analysis models."""
+    from transformers import (
+        pipeline,
+        TFDistilBertForSequenceClassification,
+        DistilBertTokenizer,
+    )
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    vader_analyzer_ = SentimentIntensityAnalyzer()
 
-    def transform_model():
-        """Prepare the transformer sentiment analysis pipeline."""
-        from transformers import (
-            pipeline,
-            TFDistilBertForSequenceClassification,
-            DistilBertTokenizer,
-        )
+    model_name = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
+    tokenizer = DistilBertTokenizer.from_pretrained(model_name)
+    model = TFDistilBertForSequenceClassification.from_pretrained(model_name)
+    transformer_sentiment_ = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
-        model_name = (
-            "distilbert/distilbert-base-uncased-finetuned-sst-2-english"  # noqa
-        )
-        tokenizer = DistilBertTokenizer.from_pretrained(model_name)
-        model = TFDistilBertForSequenceClassification.from_pretrained(model_name)
-        transformer_sentiment = pipeline(
-            "sentiment-analysis", model=model, tokenizer=tokenizer
-        )
-        return transformer_sentiment
+    return vader_analyzer_, transformer_sentiment_
 
-    def vader_model():
-        """Prepare the VADER sentiment analysis model."""
-        from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-        return SentimentIntensityAnalyzer()
+vader_analyzer, transformer_sentiment = load_models()
+
+
+def prepare_sentiment_analysis(message: str, sentiment_type_from_request: str) -> tuple:
+    """Prepare the sentiment analysis based on the sentiment type."""
 
     match sentiment_type_from_request or sentiment_type_from_config:
         case "vader":
-            return vader_model(), None
+            return vader_analyzer, None
         case "transformer":
-            return None, transform_model()
+            return None, transformer_sentiment
         case "all":
-            return vader_model(), transform_model()
+            return vader_analyzer, transformer_sentiment
         case _:
             raise ValueError("Invalid sentiment type.")
 
 
+@functools.lru_cache(maxsize=5)
 def get_sentiment_scores(sentiment_type_, message, sentiment_analysis_result):
     """Get sentiment scores based on the sentiment type."""
     if sentiment_type_ == "vader":
         sia, _ = sentiment_analysis_result
         return None, sia.polarity_scores(message)
     elif sentiment_type_ == "transformer":
-        _, transformer_sentiment = sentiment_analysis_result
-        transformer_sentiment_scores = transformer_sentiment(message)
+        _, transformer_sentiment_ = sentiment_analysis_result
+        transformer_sentiment_scores = transformer_sentiment_(message)
         return transformer_sentiment_scores[0], None
     else:
-        sia, transformer_sentiment = sentiment_analysis_result
+        sia, transformer_sentiment_ = sentiment_analysis_result
         vader_sentiment_scores = sia.polarity_scores(message)
-        transformer_sentiment_scores = transformer_sentiment(message)
+        transformer_sentiment_scores = transformer_sentiment_(message)
         return transformer_sentiment_scores[0], vader_sentiment_scores
 
 

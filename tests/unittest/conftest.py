@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from tts.app import SentimentAnalysisService
-from tts.helpers.functions import Config
+from tts.extensions import config_tts
 
 
 @pytest.fixture
@@ -21,8 +21,7 @@ def client(app):
 @pytest.fixture
 def config_project():
     """Return the configuration."""
-    config = Config()
-    return config.project
+    return config_tts.project
 
 
 class MockSentimentRequest:

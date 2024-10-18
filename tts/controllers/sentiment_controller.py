@@ -1,12 +1,8 @@
 from flask import Blueprint, request, jsonify
 
 from tts.helpers.decorators import handle_exceptions, require_api_key
-from tts.helpers.functions import (
-    determine_sentiment_all_models,
-    prepare_sentiment_analysis,
-    get_sentiment_scores,
-)
-from tts.models.sentiment import SentimentRequest, SentimentResponse
+from tts.helpers.functions import analyze_sentiment
+from tts.models.sentiment import SentimentResponse
 
 
 sentiment_bp = Blueprint("sentiment", __name__)
@@ -19,22 +15,15 @@ def sentiment_analysis() -> jsonify:
     """Sentiment analysis API endpoint."""
 
     data = request.get_json()
-    sentiment_request = SentimentRequest(**data)
+    message = data.get("text")
+    sentiment_type = data.get("sentiment_type")
 
-    sentiment_analysis_result = prepare_sentiment_analysis(
-        sentiment_request.text, sentiment_request.sentiment_type
-    )
-    transformer_sentiment_score, vader_sentiment_scores = get_sentiment_scores(
-        sentiment_request.sentiment_type,
-        sentiment_request.text,
-        sentiment_analysis_result,
-    )
-    sentiment_result = determine_sentiment_all_models(
-        transformers_scores=transformer_sentiment_score,
-        vader_scores=vader_sentiment_scores,
+    sentiment_result = analyze_sentiment(
+        message=message,
+        sentiment_type=sentiment_type,
     )
     response = SentimentResponse(
-        text=sentiment_request.text,
+        text=message,
         sentiment_result=sentiment_result,
     )
     return response.model_dump_json()

@@ -11,7 +11,12 @@ services:
     env_file: .env
     ports:
       - "5002:5000"
-    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 1 -k gthread --bind 0.0.0.0:5002 wsgi:app"
+    deploy:
+      resources:
+        limits:
+          memory: 2024M
+          cpus: '0.75'
+    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
   nginx:
     image: nginx:1.20.1
     networks:

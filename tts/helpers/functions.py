@@ -1,33 +1,12 @@
-import configparser
 import functools
-from typing import final, Optional
+import random
+from typing import Optional
 
+from langdetect import detect, LangDetectException
+from slack_sdk import WebClient
 
-class Config:
-    def __init__(self, file_path: str = "config.ini"):
-        self.config = configparser.ConfigParser()
-        self.config.read(file_path)
-
-    def __getattr__(self, section):
-        """Get a section as an attribute."""
-        if section in self.config:
-            return ConfigSection(self.config[section])
-        raise AttributeError(f"Section '{section}' not found in configuration.")
-
-
-class ConfigSection:
-    def __init__(self, section):
-        self.section = section
-
-    def __getattr__(self, key):
-        """Get a key as an attribute."""
-        if key in self.section:
-            return self.section[key]
-        raise AttributeError(f"Key '{key}' not found in section.")
-
-
-config = Config()
-sentiment_type_from_config: final = config.project.sentiment_type
+from tts.extensions import config_tts
+from tts.models.sentiment import SentimentRequest
 
 
 def load_models():
@@ -38,12 +17,17 @@ def load_models():
         DistilBertTokenizer,
     )
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
     vader_analyzer_ = SentimentIntensityAnalyzer()
 
-    model_name = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
+    model_name = (
+        "distilbert/distilbert-base-uncased-finetuned-sst-2-english"  # noqa
+    )
     tokenizer = DistilBertTokenizer.from_pretrained(model_name)
     model = TFDistilBertForSequenceClassification.from_pretrained(model_name)
-    transformer_sentiment_ = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+    transformer_sentiment_ = pipeline(
+        "sentiment-analysis", model=model, tokenizer=tokenizer
+    )
 
     return vader_analyzer_, transformer_sentiment_
 
@@ -51,10 +35,12 @@ def load_models():
 vader_analyzer, transformer_sentiment = load_models()
 
 
-def prepare_sentiment_analysis(message: str, sentiment_type_from_request: str) -> tuple:
+def prepare_sentiment_analysis(
+    sentiment_type_from_request: Optional[str] = None,
+) -> tuple:
     """Prepare the sentiment analysis based on the sentiment type."""
 
-    match sentiment_type_from_request or sentiment_type_from_config:
+    match sentiment_type_from_request or config_tts.project.sentiment_type:
         case "vader":
             return vader_analyzer, None
         case "transformer":
@@ -138,3 +124,65 @@ def determine_sentiment_transformer(transformers_scores: dict):
     if transformer_score < 0.5:
         return "negative"
     return "not negative"
+
+
+def analyze_sentiment(
+    message: str,
+    sentiment_type: Optional[str] = None,
+) -> str:
+    """Sends a request for sentiment analysis."""
+    data = {
+        "sentiment_type": sentiment_type or config_tts.project.sentiment_type,
+        "text": message,
+    }
+    sentiment_request = SentimentRequest(**data)
+
+    sentiment_analysis_result = prepare_sentiment_analysis(
+        sentiment_request.sentiment_type
+    )
+    transformer_sentiment_score, vader_sentiment_scores = get_sentiment_scores(
+        sentiment_type_=sentiment_request.sentiment_type,
+        message=sentiment_request.text,
+        sentiment_analysis_result=sentiment_analysis_result,
+    )
+    sentiment_result = determine_sentiment_all_models(
+        transformers_scores=transformer_sentiment_score,
+        vader_scores=vader_sentiment_scores,
+    )
+    return sentiment_result
+
+
+def is_negative_sentiment(sentiment_result: str) -> bool:
+    """Checks if the sentiment is negative."""
+    return "negative" in sentiment_result and "not" not in sentiment_result
+
+
+def is_english(text: str) -> bool:
+    """Checks if the given text is in English."""
+    try:
+        language = detect(text)
+        return language == "en"
+    except (LangDetectException, Exception) as e:
+        if isinstance(e, LangDetectException):
+            return False
+        return True
+
+
+def send_message_to_slack(sentiment_result: str, **kwargs):
+    """Sends a message to Slack."""
+    message = kwargs.get("text")
+    token = kwargs.get("token")
+    channel = kwargs.get("channel")
+    username = kwargs.get("username")
+    if is_negative_sentiment(sentiment_result) and token and message:
+        messages = (
+            "> This message has a negative sentiment. Please be kind to others. \n",
+            "> It seems this message carries a negative tone. Let's keep things positive and constructive! \n",
+            "> This message may come across as negative. A little kindness can go a long way! \n",
+            "> Your message seems to have a negative sentiment. Let’s focus on solutions and positivity! \n",
+        )
+        message = random.choice(messages)
+        client = WebClient(token=token)
+        client.chat_postMessage(
+            channel=channel, text=message, mrkdwn=True, username=username
+        )

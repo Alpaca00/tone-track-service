@@ -2,7 +2,11 @@ from flask import Blueprint, request, jsonify, redirect
 
 from tts.extensions import env_variables
 from tts.helpers.decorators import handle_exceptions
-from tts.helpers.functions import analyze_sentiment, send_message_to_slack
+from tts.helpers.functions import (
+    analyze_sentiment,
+    send_message_to_slack,
+    verify_slack_app_signature,
+)
 from tts.models.slack_app import (
     SlackVerificationRequest,
     SlackVerificationChallengeResponse,
@@ -17,6 +21,12 @@ slack_verification = Blueprint("slack_verification", __name__)
 @handle_exceptions
 def slack_app_events():
     """The endpoint for Slack events orchestration."""
+    signing_secret_ = env_variables.SLACK_SIGNING_SECRET
+    if not verify_slack_app_signature(
+        signing_secret=signing_secret_, request_=request
+    ):
+        return jsonify({"error": "Signature verification failed."}), 400
+
     data = request.get_json()
 
     event_type = data.get("type")
@@ -50,9 +60,6 @@ def handle_event_callback(data: dict):
     event = data.get("event")
     if not event:
         return jsonify({"error": "Event not found."}), 400
-
-    # TODO: Implement the logic for verifying the event
-    # https://api.slack.com/authentication/verifying-requests-from-slack
 
     message = event.get("text")
     channel_id = event.get("channel")

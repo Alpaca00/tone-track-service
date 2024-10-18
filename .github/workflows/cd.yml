@@ -63,6 +63,7 @@ jobs:
         run: |
           echo "API_KEY=${{ secrets.API_KEY }}" > .env
           echo "SLACK_BOT_OAUTH_TOKEN=${{ secrets.SLACK_BOT_OAUTH_TOKEN }}" >> .env
+          echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}" >> .env
           echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
 
       - name: Build Docker image with version tag

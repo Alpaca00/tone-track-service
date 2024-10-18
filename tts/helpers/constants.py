@@ -8,3 +8,4 @@ class EnvironmentVariables:
     """Environment variables."""
     API_KEY = os.environ.get("API_KEY")
     SLACK_BOT_OAUTH_TOKEN = os.environ.get("SLACK_BOT_OAUTH_TOKEN")
+    SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")

@@ -5,9 +5,8 @@ license: MIT
 """  # noqa
 
 from tts.app import SentimentAnalysisService
-from tts.helpers.functions import Config
+from tts.extensions import config_tts as config
 
-config = Config()
 
 app = SentimentAnalysisService(environment=config.project.environment)
 if __name__ == '__main__':

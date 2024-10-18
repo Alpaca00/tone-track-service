@@ -197,6 +197,9 @@ def verify_slack_app_signature(signing_secret: str, request_: any) -> bool:
     timestamp = request_.headers.get("X-Slack-Request-Timestamp")
     slack_signature = request_.headers.get("X-Slack-Signature")
 
+    if not timestamp or not slack_signature:
+        return False
+
     if abs(time.time() - int(timestamp)) > 60 * 2:
         return False
 

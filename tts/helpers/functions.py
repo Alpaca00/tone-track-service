@@ -203,7 +203,7 @@ def verify_slack_app_signature(signing_secret: str, request_: any) -> bool:
     if abs(time.time() - int(timestamp)) > 60 * 2:
         return False
 
-    request_body = request_.body()
+    request_body = request_.get_data(as_text=True)
     sig_basestring = f"v0:{timestamp}:{request_body}"
 
     calculated_signature = hmac.new(

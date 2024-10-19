@@ -6,7 +6,15 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from tts.configuration import configurations
-from tts.controllers import sentiment_bp, health, slack_verification, slack_events
+from tts.controllers import (
+    sentiment_bp,
+    health,
+    slack_verification,
+    slack_events,
+    slack_commands,
+    slack_interactions,
+)
+from tts.extensions import config_tts
 
 
 class Monostate:
@@ -29,10 +37,11 @@ class SentimentAnalysisService(Monostate):
     def __init__(self, environment: Literal["production", "testing"] = "testing"):
         self.app = Flask(__name__)
         self.app.config.from_object(configurations[environment])
+        minute, second = eval(config_tts.project.rate_limiter)
         Limiter(
             get_remote_address,
             app=self.app,
-            default_limits=["60 per minute", "1 per second"],
+            default_limits=[f"{minute} per minute", f"{second} per second"],
             storage_uri="memory://",
         )
         self.configure_service()
@@ -44,6 +53,8 @@ class SentimentAnalysisService(Monostate):
             sentiment_bp,
             slack_verification,
             slack_events,
+            slack_commands,
+            slack_interactions,
         )
         for blueprint in register_blueprints:
             self.app.register_blueprint(blueprint)

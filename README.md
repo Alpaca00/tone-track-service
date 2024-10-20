@@ -92,9 +92,11 @@ I: Add | Update sentiment analysis message to channel
 
 6. Install the app to your workspace.
 7. Run the following command to start working with the Slack App:
-Requirements:
-- `SLACK_SIGNING_SECRET`: Your Slack App's signing secret from the `Basic Information` section.
-- `SLACK_BOT_OAUTH_TOKEN`: Your Slack App's bot token from the `OAuth & Permissions` section.
+
+Required environment variables:
+- `SLACK_SIGNING_SECRET`  Your Slack App's signing secret from the `Basic Information` section.
+- `SLACK_BOT_OAUTH_TOKEN` Your Slack App's bot token from the `OAuth & Permissions` section.
+
 ```bash
 docker compose dowm --rmi all
 docker service prune -f

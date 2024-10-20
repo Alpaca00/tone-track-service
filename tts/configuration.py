@@ -1,5 +1,8 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class BaseConfig:
     """Base configuration."""
@@ -11,7 +14,9 @@ class BaseConfig:
 class ProdConfig(BaseConfig):
     """Production configuration."""
 
-    pass
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TESTING = False
+    DEBUG = False
 
 
 class TestConfig(BaseConfig):
@@ -19,9 +24,3 @@ class TestConfig(BaseConfig):
 
     TESTING = True
     DEBUG = True
-
-
-configurations = {
-    "production": ProdConfig,
-    "testing": TestConfig,
-}

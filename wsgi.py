@@ -1,7 +1,7 @@
 """WSGI entrypoint.
 
 copyright: (c) by Oleg Matskiv
-license: MIT
+license: Apache License 2.0
 """  # noqa
 
 from tts.app import SentimentAnalysisService

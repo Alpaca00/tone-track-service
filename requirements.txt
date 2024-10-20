@@ -7,10 +7,16 @@ Flask-Limiter==3.8.0
 pydantic==2.9.2
 requests==2.32.3
 python-dotenv==1.0.1
-# lower version of gunicorn is used to avoid the error of wsgi file not found
+# lower version of gunicorn is used to avoid the error of wsgi file not found, todo - fix this and upgrade gunicorn
+# https://osv.dev/vulnerability/GHSA-w3h3-4rj7-4ph4
 gunicorn==20.1.0
 langdetect==1.0.9
 slack_sdk==3.33.1
+SQLAlchemy==2.0.36
+psycopg2-binary==2.9.10
+redis==4.5.4
+accessify==0.3.1
+cryptography==43.0.3
 
 # test requirements
 pytest-flask==1.3.0

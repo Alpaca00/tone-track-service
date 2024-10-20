@@ -2,11 +2,9 @@ import hmac
 import hashlib
 import time
 import functools
-import random
 from typing import Optional
 
 from langdetect import detect, LangDetectException
-from slack_sdk import WebClient
 
 from tts.extensions import config_tts
 from tts.models.sentiment import SentimentRequest
@@ -169,26 +167,6 @@ def is_english(text: str) -> bool:
         if isinstance(e, LangDetectException):
             return False
         return True
-
-
-def send_message_to_slack(sentiment_result: str, **kwargs):
-    """Sends a message to Slack."""
-    message = kwargs.get("text")
-    token = kwargs.get("token")
-    channel = kwargs.get("channel")
-    username = kwargs.get("username")
-    if is_negative_sentiment(sentiment_result) and token and message:
-        messages = (
-            "> This message has a negative sentiment. Please be kind to others. \n",
-            "> It seems this message carries a negative tone. Let's keep things positive and constructive! \n",
-            "> This message may come across as negative. A little kindness can go a long way! \n",
-            "> Your message seems to have a negative sentiment. Let’s focus on solutions and positivity! \n",
-        )
-        message = random.choice(messages)
-        client = WebClient(token=token)
-        client.chat_postMessage(
-            channel=channel, text=message, mrkdwn=True, username=username
-        )
 
 
 def verify_slack_app_signature(signing_secret: str, request_: any) -> bool:

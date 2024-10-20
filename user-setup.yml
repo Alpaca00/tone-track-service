@@ -5,10 +5,9 @@ services:
     build:
       dockerfile: devops/build/Dockerfile
       context: "."
-    image: alpaca00/tone-track-local:latest
+    container_name: tone-track-demo
     networks:
-      - tts_network
-    env_file: .env
+      - tts_demo_network
     ports:
       - "5002:5000"
     depends_on:
@@ -19,47 +18,49 @@ services:
         limits:
           memory: 2024M
           cpus: '0.75'
-    command: sh -c "cd '/app' && python3 download_nltk_data.py && gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
+    # if you get an error about volume permissions, you can remove the volumes section
+    volumes:
+      - ./:/app
+    command:
+      sh -c "
+        cd '/app';
+        chmod +x ./generate_env.sh;
+        ./generate_env.sh;
+        export $(cat ./.envi | xargs);
+        python3 download_nltk_data.py;
+        gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
   postgres:
     image: postgres:15-alpine
+    container_name: postgres-demo
     restart: always
     networks:
-      - tts_network
-    env_file: .env
-#    volumes:
-#      - ./postgres_data:/var/lib/postgresql/data
+      - tts_demo_network
     ports:
       - "5432:5432"
   redis:
     image: redis:7.4.1
-    env_file: .env
+    container_name: redis-demo
     networks:
-      - tts_network
+      - tts_demo_network
     restart: always
     command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}" ]
     ports:
       - "6379:6379"
-#    volumes:
-#      - ./redis_data:/data
   nginx:
     image: nginx:1.20.1
+    container_name: nginx-demo
     networks:
-      - tts_network
+      - tts_demo_network
     ports:
       - "80:80"
     restart: always
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
       - ./nginx/conf/:/etc/nginx/conf.d/
-#      - ./certbot/www:/var/www/certbot/:ro
     depends_on:
       - app
-#  certbot:
-#    image: certbot/certbot:latest
-#    volumes:
-#      - ./certbot/www/:/var/www/certbot/:rw
 
 
 networks:
-  tts_network:
+  tts_demo_network:
     driver: bridge

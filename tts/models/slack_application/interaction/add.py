@@ -6,14 +6,6 @@ class ElementInput(BaseModel):
     value: str
 
 
-class WorkspaceNameBlock(BaseModel):
-    workspace_name: ElementInput
-
-
-class WorkspaceEmailBlock(BaseModel):
-    workspace_email: ElementInput
-
-
 class ViewState(BaseModel):
     values: dict[str, dict[str, ElementInput]]
 
@@ -42,3 +34,11 @@ class SlackInteractionModalResponse(BaseModel):
     api_app_id: str
     trigger_id: str
     view: View
+
+
+class RedisValuesValidated(BaseModel):
+    user_id: str
+    team_id: str
+    team_domain: str
+    channel_id: str
+    channel_name: str

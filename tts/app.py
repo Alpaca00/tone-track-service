@@ -1,3 +1,4 @@
+import ast
 from typing import Literal
 
 from flask import Flask
@@ -5,7 +6,6 @@ from flask.testing import FlaskClient
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-from tts.configuration import configurations
 from tts.controllers import (
     sentiment_bp,
     health,
@@ -14,7 +14,7 @@ from tts.controllers import (
     slack_commands,
     slack_interactions,
 )
-from tts.extensions import config_tts
+from tts.extensions import config_tts, configurations
 
 
 class Monostate:
@@ -34,10 +34,12 @@ class Monostate:
 class SentimentAnalysisService(Monostate):
     """Main class for the sentiment analysis Flask application."""
 
-    def __init__(self, environment: Literal["production", "testing"] = "testing"):
+    def __init__(self, environment: Literal["production", "testing"]):
         self.app = Flask(__name__)
+        if environment not in ("production", "testing"):
+            environment = config_tts.project.environment
         self.app.config.from_object(configurations[environment])
-        minute, second = eval(config_tts.project.rate_limiter)
+        minute, second = ast.literal_eval(config_tts.project.rate_limiter)
         Limiter(
             get_remote_address,
             app=self.app,

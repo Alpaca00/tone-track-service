@@ -28,15 +28,15 @@ To install the required dependencies, run the following commands:
 ```bash
 git clone https://github.com/Alpaca00/tone-track-service.git
 cd tone-track-service
-echo "API_KEY=YOUR_API_KEY" > .env  # Replace YOUR_API_KEY with your random API key
-docker-compose up
+docker compose --file user-setup.yml up -d && \
+docker exec tone-track-demo /bin/sh -c "cat ./.envi" | tr -d '\r' > envs.txt
 ```
 
 When the server is up and running, you can access the API at `localhost:80`
 ```curl
 curl --location 'http://0:80/api/v1/sentiment-analysis' \
 --header 'Content-Type: application/json' \
---header 'Authorization: YOUR_API_KEY' \
+--header 'Authorization: <YOUR API KEY FROM envs.txt or .envi FILE volume>' \
 --data '{"text": "Your hard work is noticed, and it brings results!", "sentiment_type": "vader"}'
 ```
 
@@ -76,49 +76,35 @@ https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/events
 ```
 5. Navigate to the `Slash Commands` section and create a new commands:
 
-I: Add a workspace and sentiment analysis message
+I: Add | Update sentiment analysis message to channel
 ```text
-    - Command: /tt-add-workspace
+    - Command: /tt-add-message
     - Request URL: https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/commands
-    - Short Description: Add a workspace and sentiment analysis message
+    - Short Description: Add | Update sentiment analysis message to channel
 ```
 
-   II: Get information about a workspace
+   II: Retrieve sentiment analysis message from channel
 ```text
-    - Command: /tt-info-workspace
+    - Command: /tt-read-message
     - Request URL: https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/commands
-    - Short Description: Get information about a workspace
+    - Short Description: Retrieve sentiment analysis message from channel
 ```
 
-   III: Update a workspace and sentiment analysis message
-```text
-     - Command: /tt-update-workspace
-     - Request URL: https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/commands
-     - Short Description: Update a workspace and sentiment analysis message
-```
 6. Install the app to your workspace.
-7. Add environment variables from the Slack App to the `.env` file:
-```bash
-# Replace the placeholders below with your actual Slack App credentials and PostgreSQL configuration values to ensure the security of your data
-echo "SLACK_BOT_OAUTH_TOKEN=YOUR_SLACK_BOT_AUTH_TOKEN" >> .env
-echo "SLACK_SIGNING_SECRET=YOUR_SLACK_SIGNING_SECRET" >> .env
-echo "POSTGRES_USER=YOUR_POSTGRES_USER" >> .env
-echo "POSTGRES_PASSWORD=YOUR_POSTGRES_PASSWORD" >> .env
-# Don't change this values
-echo "POSTGRES_DB=tts" >> .env
-echo "POSTGRES_HOST=postgres" >> .env
-```
-8. Run the following command to start the Slack App:
+7. Run the following command to start working with the Slack App:
+Requirements:
+- `SLACK_SIGNING_SECRET`: Your Slack App's signing secret from the `Basic Information` section.
+- `SLACK_BOT_OAUTH_TOKEN`: Your Slack App's bot token from the `OAuth & Permissions` section.
 ```bash
 docker compose dowm --rmi all
 docker service prune -f
-docker-compose up
+docker compose --file user-setup.yml -e SLACK_SIGNING_SECRET=YOUR_SLACK_SIGNING_SECRET -e SLACK_BOT_OAUTH_TOKEN=YOUR_SLACK_BOT_OAUTH_TOKEN up -d
 ```
 
 ---
 
 ### 📄 License
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+This project is licensed under the [Apache License](LICENSE) - see the LICENSE file for details.
 
 ---
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class ModalView(BaseModel):
     type: str = Field(default="modal")
-    title: dict[str, any] = Field(default_factory=lambda: {"type": "plain_text", "text": "Add Workspace", "emoji": True})
+    title: dict[str, any] = Field(default_factory=lambda: {"type": "plain_text", "text": "Add Message", "emoji": True})
     submit: dict[str, any] = Field(default_factory=lambda: {"type": "plain_text", "text": "Submit", "emoji": True})
     callback_id: str
     blocks: list[dict[str, any]]
@@ -21,41 +21,7 @@ modal_view = ModalView(
     blocks=[
     {
         "type": "input",
-        "block_id": "workspace_name_block",
-        "label": {
-            "type": "plain_text",
-            "text": "Workspace Name",
-            "emoji": True
-        },
-        "element": {
-            "type": "plain_text_input",
-            "action_id": "workspace_name",
-            "placeholder": {
-                "type": "plain_text",
-                "text": "Enter your workspace name"
-            }
-        }
-    },
-    {
-        "type": "input",
-        "block_id": "workspace_email_block",
-        "label": {
-            "type": "plain_text",
-            "text": "Workspace Email",
-            "emoji": True
-        },
-        "element": {
-            "type": "plain_text_input",
-            "action_id": "workspace_email",
-            "placeholder": {
-                "type": "plain_text",
-                "text": "Enter your workspace email"
-            }
-        }
-    },
-    {
-        "type": "input",
-        "block_id": "message_reply_block",
+        "block_id": "sentiment_analysis_message_block",
         "label": {
             "type": "plain_text",
             "text": "Sentiment Analysis Message",
@@ -63,7 +29,7 @@ modal_view = ModalView(
         },
         "element": {
             "type": "plain_text_input",
-            "action_id": "message_reply",
+            "action_id": "sentiment_analysis_message_input",
             "placeholder": {
                 "type": "plain_text",
                 "text": "Enter your message for sentiment analysis"

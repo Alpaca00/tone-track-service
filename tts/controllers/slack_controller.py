@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from tts.extensions import env_variables
+from tts.extensions import env_variables, redis_client
 from tts.helpers.constants import EnvironmentVariables
 from tts.helpers.decorators import handle_exceptions
 from tts.helpers.functions import (
@@ -14,7 +14,8 @@ from tts.helpers.functions import (
     verify_slack_app_signature,
     is_negative_sentiment,
 )
-from tts.models.db.base import initialize_database, DatabaseManager
+from tts.models.postgres.base import DatabaseManager, initialize_database
+
 from tts.models.slack_application import (
     SlackVerificationRequest,
     SlackVerificationChallengeResponse,
@@ -22,22 +23,34 @@ from tts.models.slack_application import (
     modal_view_callback_id,
     modal_view,
 )
+from tts.models.slack_application.interaction.add import RedisValuesValidated
 
 slack_events = Blueprint("slack_events", __name__)
 slack_verification = Blueprint("slack_verification", __name__)
 slack_commands = Blueprint("slack_commands", __name__)
 slack_interactions = Blueprint("slack_interactions", __name__)
 
+DEFAULT_SENTIMENT_MESSAGE: final = (
+    "Your message has a negative sentiment.\nPlease be kind to others."
+)
 
 SIGNATURE_VERIFICATION_ERROR: final = {"error": "Signature verification failed."}
+EVENT_NOT_FOUND: final = {"error": "Event not found."}
+
 UNSUPPORTED_EVENT_TYPE: final = {"message": "Unsupported event type."}
+UNSUPPORTED_COMMAND: final = {"message": "Unsupported command."}
+NO_PAYLOAD_PROVIDED: final = {"message": "No payload provided."}
+
+RESPONSE_ACTION_CLEAR: final = {"response_action": "clear"}
+
 VALIDATION_ERROR_MESSAGE: final = "Validation error occurred."
 INVALID_FORM_MESSAGE: final = "Invalid form fields provided."
+USER_DATA_NOT_FOUND: final = "User data not found. Please try again."
+NO_MESSAGE_FOUND: final = "No message found."
 
 COMMANDS: final = {
-    "add": "/tt-add-workspace",  # Add a workspace and sentiment analysis message
-    "info": "/tt-info-workspace",  # Get information about a workspace
-    "update": "/tt-update-workspace",  # Update a workspace and sentiment analysis message
+    "add": "/tt-add-message",  # Add | Update sentiment analysis message to channel
+    "read": "/tt-read-message",  # Retrieve sentiment analysis message from channel
 }
 
 
@@ -82,9 +95,20 @@ def slack_app_commands():
     command = data.get("command")
 
     if command == COMMANDS["add"]:
-        return open_modal(data)
+        redis_values = RedisValuesValidated(**data)
 
-    return jsonify({"message": "Unknown command."}), 400
+        redis_client.store_user_data_with_ttl(
+            user_id=redis_values.user_id,
+            team_id=redis_values.team_id,
+            team_domain=redis_values.team_domain,
+            channel_id=redis_values.channel_id,
+            channel_name=redis_values.channel_name,
+        )
+        return open_modal(data)
+    elif command == COMMANDS["read"]:
+        return read_message_for_channel(data)
+
+    return jsonify(UNSUPPORTED_COMMAND), 400
 
 
 @slack_interactions.route("/api/v1/slack/interactions", methods=["POST"])
@@ -94,7 +118,7 @@ def slack_app_interaction():
     payload = request.form.get("payload")
 
     if not payload:
-        return jsonify({"message": "No payload provided."}), 400
+        return jsonify(NO_PAYLOAD_PROVIDED), 400
 
     client = WebClient(token=env_variables.SLACK_BOT_OAUTH_TOKEN)
     payload_dict = {}
@@ -114,7 +138,7 @@ def slack_app_interaction():
     except SlackApiError as e:
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"response_action": "clear"})
+    return jsonify(RESPONSE_ACTION_CLEAR)
 
 
 def verify_signature(request_) -> bool:
@@ -126,7 +150,7 @@ def verify_signature(request_) -> bool:
 
 
 def open_modal(data: dict) -> jsonify:
-    """Open a Slack modal for adding a workspace."""
+    """Open a Slack modal for adding a channel message."""
     client = WebClient(token=EnvironmentVariables.SLACK_BOT_OAUTH_TOKEN)
     trigger_id = data.get("trigger_id")
 
@@ -137,63 +161,104 @@ def open_modal(data: dict) -> jsonify:
         return jsonify({"error": str(e)}), 500
 
 
-def info_workspace(data: dict) -> jsonify:
-    """Get information about a workspace."""
-
-
-
+def read_message_for_channel(data: dict) -> jsonify:
+    """Read a sentiment analysis message from a channel."""
     client = WebClient(token=EnvironmentVariables.SLACK_BOT_OAUTH_TOKEN)
     user_id = data.get("user_id")
-    client.chat_postMessage(channel=user_id, text="Workspace information.")
+    channel_id = data.get("channel_id")
+    if user_id:
+        initialize_database()
+        db_manager = DatabaseManager()
+        channel_message = db_manager.read_channel_sentiment_message(channel_id)
+        client.chat_postMessage(
+            channel=channel_id,
+            text="Sentiment Analysis",
+            mrkdwn=True,
+            attachments=[
+                {
+                    "color": "yellow",
+                    "fields": [
+                        {
+                            "title": "Read Message",
+                            "value": channel_message or NO_MESSAGE_FOUND,
+                            "short": False,
+                        },
+                    ],
+                }
+            ],
+        )
+    else:
+        client.chat_postMessage(channel=channel_id, text=USER_DATA_NOT_FOUND)
 
     return jsonify({}), 200
+
 
 def handle_modal_submission(client: WebClient, validated_data) -> jsonify:
     """Handle the submission of a Slack modal."""
     state_values = validated_data.view.state.values
-    workspace_name = state_values["workspace_name_block"]["workspace_name"].value
-    workspace_email = state_values["workspace_email_block"][
-        "workspace_email"
-    ].value
-    workspace_message = state_values["message_reply_block"]["message_reply"].value
+    block = "sentiment_analysis_message_block"
+    input_ = "sentiment_analysis_message_input"
+    added, updated = "Added", "Updated"
+
+    channel_message = state_values[block][input_].value
+    team_id = validated_data.team.id
+    team_domain = validated_data.team.domain
+
+    user_data = redis_client.get_user_data(validated_data.user.id)
+
+    def send_message(title: str):
+        """Send a message to the channel."""
+        nonlocal channel_message, user_data
+
+        client.chat_postMessage(
+            channel=user_data["channel_id"],
+            text="Sentiment Analysis",
+            mrkdwn=True,
+            attachments=[
+                {
+                    "color": "yellow",
+                    "fields": [
+                        {
+                            "title": f"{title} Message",
+                            "value": channel_message,
+                            "short": False,
+                        },
+                    ],
+                }
+            ],
+        )
+
+    if not user_data:
+        client.chat_postMessage(
+            channel=user_data["channel_id"],
+            text=USER_DATA_NOT_FOUND,
+        )
+        return jsonify(RESPONSE_ACTION_CLEAR)
 
     initialize_database()
     db_manager = DatabaseManager()
-    db_manager.add_workspace(
-        name=workspace_name,
-        email=workspace_email,
-        sentiment_message=workspace_message,
+    message_exists = db_manager.read_channel_sentiment_message(
+        user_data["channel_id"]
     )
 
-    client.chat_postMessage(
-        channel=validated_data.user.id,
-        text="Workspace added successfully.",
-        mrkdwn=True,
-        attachments=[
-            {
-                "color": "yellow",
-                "fields": [
-                    {
-                        "title": "Workspace Name",
-                        "value": workspace_name,
-                        "short": False,
-                    },
-                    {
-                        "title": "Workspace Email",
-                        "value": workspace_email,
-                        "short": False,
-                    },
-                    {
-                        "title": "Sentiment Message",
-                        "value": workspace_message,
-                        "short": False,
-                    },
-                ],
-            }
-        ],
-    )
+    if message_exists:
+        db_manager.update_channel_sentiment_message(
+            channel_id=user_data["channel_id"], sentiment_message=channel_message
+        )
+        send_message(title=updated)
+    else:
+        db_manager.add_channel_sentiment_message(
+            team_id=team_id,
+            team_domain=team_domain,
+            channel_id=user_data["channel_id"],
+            channel_name=user_data["channel_name"],
+            sentiment_message=channel_message,
+        )
 
-    return jsonify({"response_action": "clear"})
+        redis_client.delete_user_data(validated_data.user.id)
+        send_message(title=added)
+
+    return jsonify(RESPONSE_ACTION_CLEAR)
 
 
 def handle_validation_error(payload_dict, client: WebClient):
@@ -207,10 +272,10 @@ def handle_event_callback(data: dict) -> jsonify:
     event = data.get("event")
 
     if not event:
-        return jsonify({"error": "Event not found."}), 400
+        return jsonify(EVENT_NOT_FOUND), 400
 
     message = event.get("text")
-    channel = event.get("channel")
+    channel_id = event.get("channel")
     username = event.get("user")
     token = env_variables.SLACK_BOT_OAUTH_TOKEN
 
@@ -223,12 +288,15 @@ def handle_event_callback(data: dict) -> jsonify:
         )
 
         client = WebClient(token=token)
+        initialize_database()
+        db_manager = DatabaseManager()
 
-        message_to_user = (
-            f"Your message has a negative sentiment.\nPlease be kind to others."
-        )
+        message_to_user = db_manager.read_channel_sentiment_message(channel_id)
+
+        if not message_to_user:
+            message_to_user = DEFAULT_SENTIMENT_MESSAGE
         client.chat_postMessage(
-            channel=channel,
+            channel=channel_id,
             text="Sentiment Analysis",
             username=username,
             attachments=[

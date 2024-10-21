@@ -2,6 +2,8 @@
 
 **A Basic HTTP Server for Tracking Sentiment of Text Data.**
 
+**Website:** [https://tone-track.uno](https://tone-track.uno)
+
 ---
 
 ## 📖 Description
@@ -12,8 +14,9 @@ Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](htt
 
 ### 🌐 Features
 
-- **Sentiment Analysis**: Accurately determines the sentiment (positive, negative, neutral) of the input text.
+- **sentiment analysis service**: Accurately determines the sentiment (positive, negative, neutral) of the input text.
 - **tone-track**: The Slack App that integrates with this service to provide sentiment analysis for Slack messages.
+- **web interface**: A simple web interface that allows users to interact with the sentiment analysis service.
 
 **Models supported only english language for now:**
 - **VADER**: A rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media.
@@ -113,3 +116,8 @@ This project is licensed under the [Apache License](LICENSE) - see the LICENSE f
 ### ❤️ DONATE
 
 If you found this project helpful or you learned something from the source code and want to thank me, please supporting this [Charity](DONATE.md)
+
+---
+### 📧 Contact
+
+If you have any questions, suggestions, or need help, feel free to contact me at [support](mailto:support.tone-track.uno@gmail.com)

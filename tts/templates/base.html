@@ -30,9 +30,10 @@ header {
 }
 .alert {
     background-color: transparent;
-    border: 1px solid #77416e;
-    color: #777;
+    border: 1px solid #2596be;
+    color: #2596be;
     font-family: Arial, sans-serif;
+        font-weight: bold;
     border-radius: 4px;
     width: 400px;
     margin-top: 30px;
@@ -45,46 +46,59 @@ header {
     background-color: transparent;
     padding: 30px;
     border-radius: 4px;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2596be;
     width: 400px;
     margin-top: 50px;
 }
 .btn-primary {
-    background-color: #555;
-    border-color: #555;
-    color: #777;
+    background-color: transparent;
+    border-color: #2596be;
+    color: #2596be;
     font-family: Arial, sans-serif;
+    font-weight: bold;
     width: 100%;
 }
 
 .btn-primary:hover {
-    background-color: #777;
+    background-color: transparent;
     border-color: #777;
-}
-    h2 {
-    color: #77416e;
+    color: #777;
     font-family: Arial, sans-serif;
+    font-weight: bold;
 }
+
+.form-check {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    accent-color: #2596be;
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+}
+
+.form-check-label {
+    color: #777;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+
 .form-control {
     background-color: transparent;
-    border: 2px solid #555;
-    color: #4db8ff;
+    border: 1px solid #2596be;
+    color: #777;
     font-family: Arial, sans-serif;
-    border-radius: 1px;
+    border-radius: 4px;
 }
 
 .form-control:focus {
     border-color: #777;
     box-shadow: none;
-}
-
-.result-label {
-    border: 2px solid #555;
-    padding: 10px;
-    border-radius: 4px;
-    margin-top: 20px;
-    text-align: center;
-    display: none;
 }
 
 footer {
@@ -96,12 +110,12 @@ footer {
 }
 
 footer a {
-    color: #777;
+    color: #2596be;
     text-decoration: none;
 }
 
 footer a:hover {
-    color: #77416e;
+    color: #2596be;
 }
 
 .footer-content {
@@ -123,13 +137,13 @@ footer a:hover {
 }
 
 .footer-item i {
-    color: #77416e;
+    color: #2596be;
 }
 
 </style>
 <header>
 <nav class="navbar">
-  <a class="navbar-brand" style="color: #777;font-family: Arial, sans-serif;">tone-track</a>
+  <a class="navbar-brand" style="color: #2596be;font-family: Arial, sans-serif;">TT</a>
   <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -139,22 +153,41 @@ footer a:hover {
     </div>
   </div>
 </nav>
-        <hr style="border-color: #77416e;">
+        <hr style="border-color: #2596be;">
 </header>
 <body>
 <div class="alert" id="alert-tid" role="alert">
-    This is a simple sentiment analysis tool
+    SENTIMENT ANALYSIS
 </div>
 <div class="container">
-    <h4 class="text-center mb-3" style="color: #777;">sentiment analysis</h4>
     <div class="form-group">
         <input type="text" class="form-control" id="userInput" placeholder="Enter text or message here">
     </div>
-    <button type="button" class="btn btn-primary" id="submitBtn">Submit</button>
-    <div class="result-label" id="resultLabel">Your result will appear here</div>
+
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+  <label class="form-check-label" for="exampleRadios1">
+    VADER
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+  <label class="form-check-label" for="exampleRadios2">
+    BERT
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3">
+  <label class="form-check-label" for="exampleRadios3">
+    ALL
+  </label>
+</div>
+
+
+    <button type="button" class="btn btn-primary" id="submitBtn">SEND</button>
 </div>
 <footer>
-    <hr style="border-color: #77416e;">
+    <hr style="border-color: #2596be;">
     <div class="footer-content">
         <div class="footer-item">
             <i class="fas fa-envelope"></i>

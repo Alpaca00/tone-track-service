@@ -1,7 +1,7 @@
 import ast
 from typing import Literal
 
-from flask import Flask
+from flask import Flask, render_template, request, jsonify, Response
 from flask.testing import FlaskClient
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -47,6 +47,8 @@ class SentimentAnalysisService(Monostate):
             storage_uri="memory://",
         )
         self.configure_service()
+        self.setup_web_route()
+        self.block_attack_vector()
 
     def configure_service(self) -> None:
         """Register the blueprint for the controller."""
@@ -60,6 +62,38 @@ class SentimentAnalysisService(Monostate):
         )
         for blueprint in register_blueprints:
             self.app.register_blueprint(blueprint)
+
+    def setup_web_route(self):
+        @self.app.route("/")
+        def web_resource() -> tuple[str, int]:
+            """Return the Page rendered by the template."""
+            return render_template("base.html"), 200
+
+    def block_attack_vector(self) -> None:
+        @self.app.before_request
+        def attack_vector() -> tuple[Response, int]:
+            message = config_tts.project.attack_vector_message
+            sensitive_files = [
+                "/.env",
+                "/.envi",
+                "/.env.bak",
+                "/.env.swp",
+                "/.env.tmp",
+                "/.git",
+                "/.gitignore",
+                "/.gitmodules",
+                "/.gitkeep",
+                "/.gitlab-ci.yml",
+                "/.hg",
+                "/config.php",
+                "/backup.sql",
+                "/wp-config.php" "/env.txt",
+                "/envi.txt",
+                "/config.txt",
+                "/config.ini",
+            ]
+            if any(request.path.startswith(file) for file in sensitive_files):
+                return jsonify({"message": message}), 403
 
     def test_client(self) -> FlaskClient:
         """Create a test client for the application."""

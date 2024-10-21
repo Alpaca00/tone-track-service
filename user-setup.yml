@@ -57,6 +57,8 @@ services:
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
       - ./nginx/conf/:/etc/nginx/conf.d/
+    environment:
+      - API_KEY=${API_KEY}
     depends_on:
       - app
 

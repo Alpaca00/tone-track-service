@@ -5,9 +5,11 @@ from flask import Flask, render_template, request, jsonify, Response
 from flask.testing import FlaskClient
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 from tts.controllers import (
     sentiment_bp,
+    proxy_sentiment_bp,
     health,
     slack_verification,
     slack_events,
@@ -35,7 +37,7 @@ class SentimentAnalysisService(Monostate):
     """Main class for the sentiment analysis Flask application."""
 
     def __init__(self, environment: Literal["production", "testing"]):
-        self.app = Flask(__name__)
+        self.app = Flask(__name__, template_folder="static")
         if environment not in ("production", "testing"):
             environment = config_tts.project.environment
         self.app.config.from_object(configurations[environment])
@@ -46,6 +48,16 @@ class SentimentAnalysisService(Monostate):
             default_limits=[f"{minute} per minute", f"{second} per second"],
             storage_uri="memory://",
         )
+        CORS(
+            self.app,
+            resources={
+                r"/api/*": {
+                    "origins": "*",
+                    "methods": ["GET", "POST", "OPTIONS"],
+                },
+            },
+            allow_headers=["Content-Type", "Authorization"],
+        )
         self.configure_service()
         self.setup_web_route()
         self.block_attack_vector()
@@ -55,6 +67,7 @@ class SentimentAnalysisService(Monostate):
         register_blueprints = (
             health,
             sentiment_bp,
+            proxy_sentiment_bp,
             slack_verification,
             slack_events,
             slack_commands,

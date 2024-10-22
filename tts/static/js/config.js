@@ -1,4 +1,4 @@
 export const config = {
-    host: 'app',
+    host: 'tone-track.uno',
     port: 80
 };

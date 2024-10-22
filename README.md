@@ -56,6 +56,9 @@ A successful response will look like this:
 [Ngrok](https://ngrok.com/) is required to expose the local server to the internet.
 
 Run the following command to expose the local server to the internet:
+
+Required environment variables:
+- `NGROK_AUTHTOKEN` Your Ngrok Auth Token from [here](https://dashboard.ngrok.com/get-started/setup)
 ```bash
 docker run --net=host -it -e NGROK_AUTHTOKEN=YOUR_NGROK_AUTH_TOKEN ngrok/ngrok:latest http 80
 ```
@@ -64,11 +67,16 @@ To integrate the Slack App with the service, you need to create a Slack App and 
 
 1. Create a new Slack App [here](https://api.slack.com/apps?new_app=1).
 2. Navigate to the `OAuth & Permissions` section and add the following scopes:
-    - `chat:write`
-    - `chat:write.public`
-    - `channels:read`
-    - `channels:history`
-    - `commands`
+
+Bot Token Scopes:
+ - `chat:write`
+ - `chat:write.public`
+ - `channels:read`
+ - `commands`
+
+User Token Scopes:
+ - `channels:history`
+
 3. Navigate to the `Interactivity & Shortcuts` section and add the following request URL:
 ```text
 https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/interactions

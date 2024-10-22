@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify, current_app
 
 from tts.helpers.constants import EnvironmentVariables
-from tts.helpers.decorators import handle_exceptions, require_api_key
+from tts.helpers.decorators import (
+    handle_exceptions,
+    require_api_key,
+    ip_whitelist,
+)
 from tts.helpers.functions import analyze_sentiment
 from tts.models.sentiment import SentimentResponse
 
@@ -38,6 +42,7 @@ def sentiment_analysis() -> jsonify:
     "/api/v1/proxy-sentiment-analysis", methods=["POST", "OPTIONS"]
 )
 @handle_exceptions
+@ip_whitelist
 def proxy_sentiment_analysis() -> jsonify:
     """Proxy for the sentiment analysis API endpoint."""
     if request.method == "OPTIONS":

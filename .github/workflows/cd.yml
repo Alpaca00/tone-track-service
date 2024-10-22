@@ -72,6 +72,7 @@ jobs:
           echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
           echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
+          echo "ALLOWED_IPS=${{ secrets.ALLOWED_IPS }}" >> .env
 
       - name: Build Docker image with version tag
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }} -f devops/build/Dockerfile .

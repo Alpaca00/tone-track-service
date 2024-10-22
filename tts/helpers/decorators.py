@@ -36,3 +36,17 @@ def require_api_key(func):
         return func(*args, **kwargs)
 
     return decorated_function
+
+
+def ip_whitelist(func):
+    """Check if the client IP is in the whitelist."""
+
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        client_ip = request.remote_addr
+        if client_ip not in current_app.config["ALLOWED_IPS"]:
+            return jsonify({"error": "Forbidden: Your IP is not allowed"}), 403
+
+        return func(*args, **kwargs)
+
+    return decorated_function

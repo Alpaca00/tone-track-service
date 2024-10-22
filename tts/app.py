@@ -42,25 +42,27 @@ class SentimentAnalysisService(Monostate):
             environment = config_tts.project.environment
         self.app.config.from_object(configurations[environment])
         minute, second = ast.literal_eval(config_tts.project.rate_limiter)
+        web_interface = ast.literal_eval(config_tts.project.web_interface)
         Limiter(
             get_remote_address,
             app=self.app,
             default_limits=[f"{minute} per minute", f"{second} per second"],
             storage_uri="memory://",
         )
-        CORS(
-            self.app,
-            resources={
-                r"/api/*": {
-                    "origins": "*",
-                    "methods": ["GET", "POST", "OPTIONS"],
-                },
-            },
-            allow_headers=["Content-Type", "Authorization"],
-        )
         self.configure_service()
-        self.setup_web_route()
         self.block_attack_vector()
+        if web_interface:
+            CORS(
+                self.app,
+                resources={
+                    r"/api/*": {
+                        "origins": "http://tone-track.uno",
+                        "methods": ["GET", "POST", "OPTIONS"],
+                    },
+                },
+                allow_headers=["Content-Type", "Authorization"],
+            )
+            self.setup_web_route()
 
     def configure_service(self) -> None:
         """Register the blueprint for the controller."""

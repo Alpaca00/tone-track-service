@@ -1,3 +1,4 @@
+import ast
 import os
 
 from dotenv import load_dotenv
@@ -9,6 +10,7 @@ class BaseConfig:
 
     SECURITY_PASSWORD_SALT = os.environ.get("SPS")
     SECRET_KEY = os.environ.get("SECRET_KEY")
+    ALLOWED_IPS = ast.literal_eval(os.environ.get("ALLOWED_IPS"))
 
 
 class ProdConfig(BaseConfig):

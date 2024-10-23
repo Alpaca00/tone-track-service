@@ -1,0 +1,41 @@
+name: CRON LOAD TESTS
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHON_VERSION: 3.12.2
+      PIP_CACHE_DIR: ~/.cache/pip
+      LOCUST_RUN_TIME: 600
+      TF_ENABLE_ONEDNN_OPTS: 0
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
+
+      - name: Run tests
+        run: |
+           locust --config tests/performance/configs/load_test_headless.ini || exit 0
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-report
+          path: locust-report.html
+          retention-days: 1

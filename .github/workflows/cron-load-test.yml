@@ -12,7 +12,7 @@ jobs:
     env:
       PYTHON_VERSION: 3.12.2
       PIP_CACHE_DIR: ~/.cache/pip
-      LOCUST_RUN_TIME: ${{ env.LOCUST_RUN_TIME }}
+      LOCUST_RUN_TIME: 600
       TF_ENABLE_ONEDNN_OPTS: 0
 
     steps:

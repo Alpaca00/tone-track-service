@@ -6,7 +6,7 @@ from typing import Optional, MutableMapping
 class APIClient:
     """Api client to perform requests with optional JSON path extraction."""
 
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str):
         self.base_url = base_url
         self.session = requests.Session()
 

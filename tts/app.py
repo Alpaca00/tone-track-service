@@ -56,7 +56,7 @@ class SentimentAnalysisService(Monostate):
                 self.app,
                 resources={
                     r"/api/*": {
-                        "origins": "http://tone-track.uno",
+                        "origins": "https://tone-track.uno",
                         "methods": ["GET", "POST", "OPTIONS"],
                     },
                 },
@@ -79,12 +79,14 @@ class SentimentAnalysisService(Monostate):
             self.app.register_blueprint(blueprint)
 
     def setup_web_route(self):
+        """Setup the web route for the application."""
         @self.app.route("/")
         def web_resource() -> tuple[str, int]:
             """Return the Page rendered by the template."""
             return render_template("base.html"), 200
 
     def block_attack_vector(self) -> None:
+        """Block attack vectors from being accessed."""
         @self.app.before_request
         def attack_vector() -> tuple[Response, int]:
             message = config_tts.project.attack_vector_message

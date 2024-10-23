@@ -1,8 +1,8 @@
-name: CRON LOAD TESTS
+name: CRON UI TESTS
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,6 @@ jobs:
     env:
       PYTHON_VERSION: 3.12.2
       PIP_CACHE_DIR: ~/.cache/pip
-      LOCUST_RUN_TIME: 600
       TF_ENABLE_ONEDNN_OPTS: 0
 
     steps:
@@ -28,14 +27,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
+          playwright install
 
       - name: Run tests
         run: |
-           locust --config tests/performance/configs/load_test_headless.ini
+           pytest tests/ui
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
         with:
-          name: load-test-report
-          path: locust-report.html
+          name: ui-test-report
+          path: report.html
           retention-days: 1

@@ -25,5 +25,7 @@ dpath==2.2.0
 pytest-html==4.1.1
 locust==2.32.0
 python-nmap==0.7.1
+playwright==1.48.0
+pytest-playwright==0.5.2
 # dev requirements
 black==24.10.0

@@ -1,26 +1,26 @@
-name: Run API Tests
+name: CRON LOAD TESTS
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
 
     env:
       PYTHON_VERSION: 3.12.2
       PIP_CACHE_DIR: ~/.cache/pip
-      API_KEY: ${{ secrets.API_KEY }}
+      LOCUST_RUN_TIME: ${{ env.LOCUST_RUN_TIME }}
       TF_ENABLE_ONEDNN_OPTS: 0
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -31,11 +31,11 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests/api
+           locust --config tests/performance/configs/load_test_headless.ini
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
         with:
-          name: api-test-report
-          path: report.html
+          name: load-test-report
+          path: locust-report.html
           retention-days: 1

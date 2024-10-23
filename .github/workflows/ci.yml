@@ -46,4 +46,4 @@ jobs:
       - name: Run tests
         if: steps.check_changes.outputs.skip_job == 'false'
         run: |
-          pytest tests/
+          pytest tests/unittest

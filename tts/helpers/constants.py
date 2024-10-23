@@ -10,7 +10,6 @@ class EnvironmentVariables:
     API_KEY = os.environ.get("API_KEY")
     SECRET_KEY = os.environ.get("SECRET_KEY")
     SPS = os.environ.get("SPS")
-    # TODO: Get the token from the database after the workspace is added
     SLACK_BOT_OAUTH_TOKEN = os.environ.get("SLACK_BOT_OAUTH_TOKEN")
     SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")
     # DATABASE POSTGRES

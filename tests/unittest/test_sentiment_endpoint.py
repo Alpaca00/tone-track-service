@@ -1,14 +1,15 @@
 import pytest
 from flask.testing import FlaskClient
 
+from tests.constants import Endpoint
 from tests.unittest.conftest import MockSentimentRequest, MockSentimentResponse
 
 
-@pytest.mark.sentiment_analysis
+@pytest.mark.sentiment_analysis_unittest
 def test_sentiment_analysis_valid_input(client, mock_nltk, config_project):
     """Test the sentiment analysis with valid input."""
     response = client.post(
-        "/api/v1/sentiment-analysis",
+        Endpoint.SENTIMENT_ANALYSIS,
         json={
             "text": MockSentimentRequest().text,
             "sentiment_type": config_project.sentiment_type,
@@ -24,7 +25,7 @@ def test_sentiment_analysis_valid_input(client, mock_nltk, config_project):
     assert actual_result == expected_result
 
 
-@pytest.mark.sentiment_analysis
+@pytest.mark.sentiment_analysis_unittest
 @pytest.mark.parametrize(
     "text",
     [
@@ -38,7 +39,7 @@ def test_sentiment_analysis_invalid_input(
 ):
     """Test the sentiment analysis with invalid input."""
     response = client.post(
-        "/api/v1/sentiment-analysis",
+        Endpoint.SENTIMENT_ANALYSIS,
         json={"text": text, "sentiment_type": config_project.sentiment_type},
     )
     json_data = response.get_json()
@@ -46,11 +47,11 @@ def test_sentiment_analysis_invalid_input(
     assert response.status_code == 422 and "error" in json_data
 
 
-@pytest.mark.sentiment_analysis
+@pytest.mark.sentiment_analysis_unittest
 def test_sentiment_analysis_internal_error(client: FlaskClient, config_project):
     """Test the sentiment analysis to ensure it handles internal errors."""
     response = client.post(
-        "/api/v1/sentiment-analysis",
+        Endpoint.SENTIMENT_ANALYSIS,
         json={
             "invalid_field": "Some text",
             "sentiment_type": config_project.sentiment_type,

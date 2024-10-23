@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from tts.extensions import env_variables, redis_client
+from tts.extensions import env_variables, redis_client, config_tts
 from tts.helpers.constants import EnvironmentVariables
 from tts.helpers.decorators import handle_exceptions
 from tts.helpers.functions import (
@@ -30,9 +30,7 @@ slack_verification = Blueprint("slack_verification", __name__)
 slack_commands = Blueprint("slack_commands", __name__)
 slack_interactions = Blueprint("slack_interactions", __name__)
 
-DEFAULT_SENTIMENT_MESSAGE: final = (
-    "Your message has a negative sentiment.\nPlease be kind to others."
-)
+DEFAULT_SENTIMENT_MESSAGE: final = config_tts.project.default_sentiment_message
 
 SIGNATURE_VERIFICATION_ERROR: final = {"error": "Signature verification failed."}
 EVENT_NOT_FOUND: final = {"error": "Event not found."}

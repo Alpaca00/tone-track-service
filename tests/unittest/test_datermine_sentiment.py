@@ -18,7 +18,10 @@ from tts.helpers.functions import determine_sentiment_all_models
         "definitely negative",
     ],
 )
+@pytest.mark.determine_sentiment_unittest
 def test_determine_sentiment(transformers_scores, vader_scores, expected_result):
+    """Test the determine_sentiment function."""
     assert (
-            determine_sentiment_all_models(transformers_scores, vader_scores) == expected_result
+        determine_sentiment_all_models(transformers_scores, vader_scores)
+        == expected_result
     )

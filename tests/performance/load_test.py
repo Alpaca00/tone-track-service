@@ -6,7 +6,7 @@ from tests.performance.helpers import JSONFileIteratorSentimentAnalysisPayload
 from tests.performance.routes import Routes
 
 
-LOCUST_RUN_TIME = os.environ.get("LOCUST_RUN_TIME", 600)
+LOCUST_RUN_TIME = int(os.environ.get("LOCUST_RUN_TIME", 600))
 
 
 class LoadTest(FastHttpUser):

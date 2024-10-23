@@ -1,0 +1,86 @@
+{
+  "positive_messages": [
+    {
+      "sentiment_type": "vader",
+      "text": "The project exceeded all expectations!"
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "Excellent performance, keep up the great work!"
+    },
+    {
+      "sentiment_type": "all",
+      "text": "Your effort truly paid off, well done!"
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "Impressive results in such a short time!"
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "Great teamwork, everything went smoothly!"
+    },
+    {
+      "sentiment_type": "all",
+      "text": "Amazing job, you're setting new standards!"
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "You handled the challenge brilliantly!"
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "Fantastic improvement since last time!"
+    },
+    {
+      "sentiment_type": "all",
+      "text": "You really nailed it, keep it going!"
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "Exceptional work, can't wait to see more!"
+    }
+  ],
+  "negative_messages": [
+    {
+      "sentiment_type": "vader",
+      "text": "The result did not meet the expectations."
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "There were several errors that need attention."
+    },
+    {
+      "sentiment_type": "all",
+      "text": "Unfortunately, the deadline was missed."
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "The solution lacks the necessary quality."
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "The project requires significant improvements."
+    },
+    {
+      "sentiment_type": "all",
+      "text": "Communication could have been much better."
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "The task was incomplete and needs revision."
+    },
+    {
+      "sentiment_type": "transformer",
+      "text": "Performance was below expectations."
+    },
+    {
+      "sentiment_type": "all",
+      "text": "The final product didn't meet the initial requirements."
+    },
+    {
+      "sentiment_type": "vader",
+      "text": "More attention to detail is necessary for future tasks."
+    }
+  ]
+}

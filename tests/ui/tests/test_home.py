@@ -1,5 +1,4 @@
 import pytest
-from playwright.sync_api import expect
 
 
 @pytest.mark.website
@@ -21,7 +20,7 @@ class TestWebsite:
         home.navigate(base_url)
         home.fill_sentiment_analysis_input(input_text)
         home.submit_sentiment_analysis()
-        expect(home.get_primary_heading_text()).to_contain_text(expected_result)
+        home.verify_sentiment_analysis_result(expected_result)
 
     def test_navbar_visibility(self, home, navbar, base_url):
         """Test that the navbar is visible on the home page."""

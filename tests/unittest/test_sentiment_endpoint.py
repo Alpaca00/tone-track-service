@@ -1,25 +1,26 @@
+import ast
+
 import pytest
 from flask.testing import FlaskClient
 
 from tests.constants import Endpoint
-from tests.unittest.conftest import MockSentimentRequest, MockSentimentResponse
+from tests.unittest.conftest import (
+    PrepareSentimentRequest,
+    PrepareSentimentResponse,
+)
 
 
 @pytest.mark.sentiment_analysis_unittest
 def test_sentiment_analysis_valid_input(client, mock_nltk, config_project):
     """Test the sentiment analysis with valid input."""
+    request = PrepareSentimentRequest()
     response = client.post(
         Endpoint.SENTIMENT_ANALYSIS,
-        json={
-            "text": MockSentimentRequest().text,
-            "sentiment_type": config_project.sentiment_type,
-        },
+        json=request.model_dump_json(),
+        headers=request.headers,
     )
-
-    actual_result = response.get_json()
-    expected_result = MockSentimentResponse(
-        MockSentimentRequest().text
-    ).model_dump_json()
+    actual_result = ast.literal_eval(response.data.decode("utf-8"))
+    expected_result = PrepareSentimentResponse().model_dump_json()
 
     assert response.status_code == 200
     assert actual_result == expected_result

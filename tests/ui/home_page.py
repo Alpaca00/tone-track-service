@@ -31,3 +31,7 @@ class Home:
     def get_primary_heading_text(self) -> Page.locator:
         """Retrieve the text of the primary heading."""
         return self.page.locator(HomePageLocators.PRIMARY_HEADING)
+
+    def verify_sentiment_analysis_result(self, expected_result: str):
+        """Verify the sentiment analysis result."""
+        expect(self.get_primary_heading_text()).to_contain_text(expected_result)

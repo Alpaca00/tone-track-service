@@ -29,17 +29,15 @@ Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](htt
 To install the required dependencies, run the following commands:
 
 ```bash
-git clone https://github.com/Alpaca00/tone-track-service.git
-cd tone-track-service
 docker compose --file user-setup.yml up -d && \
-docker exec tone-track-demo /bin/sh -c "cat ./.envi" | tr -d '\r' > envs.txt
+docker exec tone-track-demo /bin/sh -c "cat ./.env" | tr -d '\r' > env.txt
 ```
 
 When the server is up and running, you can access the API at `localhost:80`
 ```curl
 curl --location 'http://0:80/api/v1/sentiment-analysis' \
 --header 'Content-Type: application/json' \
---header 'Authorization: <YOUR API KEY FROM envs.txt or .envi FILE volume>' \
+--header 'Authorization: <YOUR API KEY FROM env.txt or .env FILE volume>' \
 --data '{"text": "Your hard work is noticed, and it brings results!", "sentiment_type": "vader"}'
 ```
 
@@ -51,17 +49,7 @@ A successful response will look like this:
 
 ---
 
-### 📩 Slack App Integration and running the Slack App on your local machine
-
-[Ngrok](https://ngrok.com/) is required to expose the local server to the internet.
-
-Run the following command to expose the local server to the internet:
-
-Required environment variables:
-- `NGROK_AUTHTOKEN` Your Ngrok Auth Token from [here](https://dashboard.ngrok.com/get-started/setup)
-```bash
-docker run --net=host -it -e NGROK_AUTHTOKEN=YOUR_NGROK_AUTH_TOKEN ngrok/ngrok:latest http 80
-```
+### 📩 Demo integration and running your Slack App on local machine
 
 To integrate the Slack App with the service, you need to create a Slack App and install it on your workspace.
 
@@ -77,15 +65,48 @@ Bot Token Scopes:
 User Token Scopes:
  - `channels:history`
 
-3. Navigate to the `Interactivity & Shortcuts` section and add the following request URL:
+
+3. Run the following command to start working with the Slack App:
+
+If haven't already, create `.env` file in the root directory of the project with the following command:
+```bash
+sh generate_env.sh || exit o
+```
+Add the following environment variables to the `.env` file or add them to the command `docker compose --file user-setup.yml up -d` by adding `-e` flag:
+- `SLACK_SIGNING_SECRET`  Your Slack App's signing secret from the `Basic Information` section.
+- `SLACK_BOT_OAUTH_TOKEN` Your Slack App's bot token from the `OAuth & Permissions` section.
+
+```bash
+docker compose dowm --rmi all
+docker service prune -f
+docker compose --file user-setup.yml up -d
+```
+
+4. Run the following command to expose the local server to the internet:
+
+[Ngrok](https://ngrok.com/) is required to expose the local server to the internet.
+
+Required environment variable:
+- `NGROK_AUTHTOKEN` Your Ngrok Auth Token from [here](https://dashboard.ngrok.com/get-started/setup)
+```bash
+docker run --net=host -it -e NGROK_AUTHTOKEN=YOUR_NGROK_AUTH_TOKEN ngrok/ngrok:latest http 80
+```
+5. Navigate to the `Interactivity & Shortcuts` section and add the following request URL:
+
+Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
+
 ```text
 https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/interactions
 ```
-4. Navigate to the `Enable Events` section and add the following request URL:
+6. Navigate to the `Enable Events` section and add the following request URL:
+
+Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
 ```
 https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/events
 ```
-5. Navigate to the `Slash Commands` section and create a new commands:
+7. Navigate to the `Slash Commands` section and create a new commands:
+
+Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
 
 I: Add | Update sentiment analysis message to channel
 ```text
@@ -94,6 +115,8 @@ I: Add | Update sentiment analysis message to channel
     - Short Description: Add | Update sentiment analysis message to channel
 ```
 
+Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
+
    II: Retrieve sentiment analysis message from channel
 ```text
     - Command: /tt-read-message
@@ -101,19 +124,7 @@ I: Add | Update sentiment analysis message to channel
     - Short Description: Retrieve sentiment analysis message from channel
 ```
 
-6. Install the app to your workspace.
-7. Run the following command to start working with the Slack App:
-
-Required environment variables:
-- `SLACK_SIGNING_SECRET`  Your Slack App's signing secret from the `Basic Information` section.
-- `SLACK_BOT_OAUTH_TOKEN` Your Slack App's bot token from the `OAuth & Permissions` section.
-
-```bash
-docker compose dowm --rmi all
-docker service prune -f
-docker compose --file user-setup.yml -e SLACK_SIGNING_SECRET=YOUR_SLACK_SIGNING_SECRET -e SLACK_BOT_OAUTH_TOKEN=YOUR_SLACK_BOT_OAUTH_TOKEN up -d
-```
-
+8. Install the app to your workspace.
 ---
 
 ### 📄 License

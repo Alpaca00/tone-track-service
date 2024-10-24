@@ -26,12 +26,17 @@ services:
         cd '/app';
         chmod +x ./generate_env.sh;
         ./generate_env.sh;
-        export $(cat ./.envi | xargs);
+        export $(cat ./.env | xargs);
         python3 download_nltk_data.py;
         gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
   postgres:
     image: postgres:15-alpine
     container_name: postgres-demo
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
     restart: always
     networks:
       - tts_demo_network
@@ -40,6 +45,8 @@ services:
   redis:
     image: redis:7.4.1
     container_name: redis-demo
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - tts_demo_network
     restart: always
@@ -56,7 +63,7 @@ services:
     restart: always
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
-      - ./nginx/conf/:/etc/nginx/conf.d/
+      - ./nginx/conf/demo:/etc/nginx/conf.d/
     environment:
       - API_KEY=${API_KEY}
     depends_on:

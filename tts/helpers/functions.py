@@ -36,7 +36,7 @@ def load_models():
 vader_analyzer, transformer_sentiment = load_models()
 
 
-def prepare_sentiment_analysis(
+def prepare_sentiment_analysis_models(
     sentiment_type_from_request: Optional[str] = None,
 ) -> tuple:
     """Prepare the sentiment analysis based on the sentiment type."""
@@ -53,17 +53,17 @@ def prepare_sentiment_analysis(
 
 
 @functools.lru_cache(maxsize=5)
-def get_sentiment_scores(sentiment_type_, message, sentiment_analysis_result):
+def get_sentiment_scores(sentiment_type_, message, models):
     """Get sentiment scores based on the sentiment type."""
     if sentiment_type_ == "vader":
-        sia, _ = sentiment_analysis_result
+        sia, _ = models
         return None, sia.polarity_scores(message)
     elif sentiment_type_ == "transformer":
-        _, transformer_sentiment_ = sentiment_analysis_result
+        _, transformer_sentiment_ = models
         transformer_sentiment_scores = transformer_sentiment_(message)
         return transformer_sentiment_scores[0], None
     else:
-        sia, transformer_sentiment_ = sentiment_analysis_result
+        sia, transformer_sentiment_ = models
         vader_sentiment_scores = sia.polarity_scores(message)
         transformer_sentiment_scores = transformer_sentiment_(message)
         return transformer_sentiment_scores[0], vader_sentiment_scores
@@ -131,20 +131,18 @@ def analyze_sentiment(
     message: str,
     sentiment_type: Optional[str] = None,
 ) -> str:
-    """Sends a request for sentiment analysis."""
+    """Analyze the sentiment of the given message."""
     data = {
         "sentiment_type": sentiment_type or config_tts.project.sentiment_type,
         "text": message,
     }
     sentiment_request = SentimentRequest(**data)
 
-    sentiment_analysis_result = prepare_sentiment_analysis(
-        sentiment_request.sentiment_type
-    )
+    models = prepare_sentiment_analysis_models(sentiment_request.sentiment_type)
     transformer_sentiment_score, vader_sentiment_scores = get_sentiment_scores(
         sentiment_type_=sentiment_request.sentiment_type,
         message=sentiment_request.text,
-        sentiment_analysis_result=sentiment_analysis_result,
+        models=models,
     )
     sentiment_result = determine_sentiment_all_models(
         transformers_scores=transformer_sentiment_score,

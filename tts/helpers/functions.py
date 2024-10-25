@@ -1,6 +1,3 @@
-import hmac
-import hashlib
-import time
 import functools
 from typing import Optional
 
@@ -165,29 +162,3 @@ def is_english(text: str) -> bool:
         if isinstance(e, LangDetectException):
             return False
         return True
-
-
-def verify_slack_app_signature(signing_secret: str, request_: any) -> bool:
-    """Verify the Slack app signature."""
-
-    timestamp = request_.headers.get("X-Slack-Request-Timestamp")
-    slack_signature = request_.headers.get("X-Slack-Signature")
-
-    if not timestamp or not slack_signature:
-        return False
-
-    if abs(time.time() - int(timestamp)) > 60 * 2:
-        return False
-
-    request_body = request_.get_data(as_text=True)
-    sig_basestring = f"v0:{timestamp}:{request_body}"
-
-    calculated_signature = hmac.new(
-        signing_secret.encode(), sig_basestring.encode(), hashlib.sha256
-    ).hexdigest()
-
-    calculated_signature = f"v0={calculated_signature}"
-    if hmac.compare_digest(calculated_signature, slack_signature):
-        return True
-    else:
-        return False

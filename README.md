@@ -29,8 +29,9 @@ Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](htt
 To install the required dependencies, run the following commands:
 
 ```bash
-docker compose --file user-setup.yml up -d && \
-docker exec tone-track-demo /bin/sh -c "cat ./.env" | tr -d '\r' > env.txt
+chmod +x ./generate_env.sh;
+./generate_env.sh;
+docker compose --file user-setup.yml up -d
 ```
 
 When the server is up and running, you can access the API at `localhost:80`
@@ -53,7 +54,7 @@ A successful response will look like this:
 
 To integrate the Slack App with the service, you need to create a Slack App and install it on your workspace.
 
-1. Create a new Slack App [here](https://api.slack.com/apps?new_app=1).
+1. Create a new Slack App [here](https://api.slack.com/apps?new_app=1) and select from scratch.
 2. Navigate to the `OAuth & Permissions` section and add the following scopes:
 
 Bot Token Scopes:
@@ -65,46 +66,37 @@ Bot Token Scopes:
 User Token Scopes:
  - `channels:history`
 
+Install the app to your workspace by `Install to Workspace` button.
 
-3. Run the following command to start working with the Slack App:
+4. Add the following environment variables to the `.env` file:
+- `SLACK_SIGNING_SECRET`  - your Slack App's signing secret from the `Basic Information` section.
+- `SLACK_BOT_OAUTH_TOKEN` - your Slack App's bot token from the `OAuth & Permissions` section.
 
-If haven't already, create `.env` file in the root directory of the project with the following command:
-```bash
-sh generate_env.sh || exit o
-```
-Add the following environment variables to the `.env` file or add them to the command `docker compose --file user-setup.yml up -d` by adding `-e` flag:
-- `SLACK_SIGNING_SECRET`  Your Slack App's signing secret from the `Basic Information` section.
-- `SLACK_BOT_OAUTH_TOKEN` Your Slack App's bot token from the `OAuth & Permissions` section.
-
-```bash
-docker compose dowm --rmi all
-docker service prune -f
-docker compose --file user-setup.yml up -d
-```
-
-4. Run the following command to expose the local server to the internet:
+5. Run the following command to expose the local server to the internet:
 
 [Ngrok](https://ngrok.com/) is required to expose the local server to the internet.
 
 Required environment variable:
-- `NGROK_AUTHTOKEN` Your Ngrok Auth Token from [here](https://dashboard.ngrok.com/get-started/setup)
+- `NGROK_AUTHTOKEN` - your Ngrok auth token from [here](https://dashboard.ngrok.com/get-started/your-authtoken)
 ```bash
 docker run --net=host -it -e NGROK_AUTHTOKEN=YOUR_NGROK_AUTH_TOKEN ngrok/ngrok:latest http 80
 ```
-5. Navigate to the `Interactivity & Shortcuts` section and add the following request URL:
+6. Navigate to the `Interactivity & Shortcuts` section of the Slack and add the following request URL:
 
 Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
-
+Example: `https://0154-95-160-47-60.ngrok-free.app/api/v1/slack/interactions`
 ```text
-https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/interactions
+https://YOUR_NGROK_SUBDOMAIN.ngrok-free.app/api/v1/slack/interactions
 ```
-6. Navigate to the `Enable Events` section and add the following request URL:
+7. Navigate to the `Enable Events` section and add the following request URL:
 
 Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
 ```
 https://YOUR_NGROK_SUBDOMAIN.ngrok.io/api/v1/slack/events
 ```
-7. Navigate to the `Slash Commands` section and create a new commands:
+**Note:** trouble with save button, look at the [Slack Forum](https://forums.slackcommunity.com/s/question/0D53a000092sM1LCAU/save-changes-button-in-event-subscription-of-apislackcom-isnt-working-whenever-one-clicks-on-it-it-just-selects-something-else-on-the-screen?language=en_US) for more information.
+
+8. Navigate to the `Slash Commands` section and create a new commands:
 
 Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
 
@@ -124,7 +116,10 @@ Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
     - Short Description: Retrieve sentiment analysis message from channel
 ```
 
-8. Install the app to your workspace.
+**Well done! You have successfully integrated the Slack App with service.**
+
+**You can now test the app by sending negative message in channel and bot identifies the sentiment and reply to you.**
+
 ---
 
 ### 📄 License

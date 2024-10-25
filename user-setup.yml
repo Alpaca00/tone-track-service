@@ -18,15 +18,11 @@ services:
         limits:
           memory: 2024M
           cpus: '0.75'
-    # if you get an error about volume permissions, you can remove the volumes section
     volumes:
       - ./:/app
     command:
       sh -c "
         cd '/app';
-        chmod +x ./generate_env.sh;
-        ./generate_env.sh;
-        export $(cat ./.env | xargs);
         python3 download_nltk_data.py;
         gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
   postgres:
@@ -64,8 +60,6 @@ services:
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
       - ./nginx/conf/demo:/etc/nginx/conf.d/
-    environment:
-      - API_KEY=${API_KEY}
     depends_on:
       - app
 

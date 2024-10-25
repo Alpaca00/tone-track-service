@@ -1,7 +1,9 @@
 from functools import wraps
 from flask import jsonify, request, current_app
 from pydantic import ValidationError
+from slack_sdk.errors import SlackApiError
 
+from tts.controllers.slack.http.constants import RESPONSE_ACTION_CLEAR
 from tts.helpers.constants import EnvironmentVariables
 
 
@@ -15,9 +17,28 @@ def handle_exceptions(func):
         except ValidationError as e:
             return jsonify({"error": e.errors()}), 422
         except IndexError as e:
-            return jsonify({"error": str(e)}), 400
+            return jsonify({"error": str(e)}), 404
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    return wrapper
+
+
+def handle_slack_exceptions(func):
+    """Handle exceptions in the Slack API."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValidationError:
+            return jsonify(RESPONSE_ACTION_CLEAR), 422
+        except IndexError:
+            return jsonify(RESPONSE_ACTION_CLEAR), 404
+        except SlackApiError:
+            return jsonify(RESPONSE_ACTION_CLEAR), 503
+        except Exception:  # noqa
+            return jsonify(RESPONSE_ACTION_CLEAR), 500
 
     return wrapper
 

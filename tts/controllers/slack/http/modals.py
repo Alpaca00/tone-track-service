@@ -1,6 +1,5 @@
 from flask import jsonify
 from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
 
 from tts.controllers.slack.http.constants import (
     USER_DATA_NOT_FOUND,
@@ -15,13 +14,10 @@ from tts.models.slack_application import modal_view
 def open_modal(data: dict) -> jsonify:
     """Open a Slack modal for adding a channel message."""
     trigger_id = data.get("trigger_id")
-    try:
-        client_slack.views_open(
-            trigger_id=trigger_id, view=modal_view.model_dump()
-        )
-        return jsonify({}), 200
-    except SlackApiError as e:
-        return jsonify({"error": str(e)}), 500
+    client_slack.views_open(
+        trigger_id=trigger_id, view=modal_view.model_dump()
+    )
+    return jsonify({}), 200
 
 
 def handle_modal_submission(client: WebClient, validated_data) -> jsonify:

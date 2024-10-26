@@ -84,7 +84,9 @@ docker run --net=host -it -e NGROK_AUTHTOKEN=YOUR_NGROK_AUTH_TOKEN ngrok/ngrok:l
 6. Navigate to the `Interactivity & Shortcuts` section of the Slack and add the following request URL:
 
 Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
+
 Example: `https://0154-95-160-47-60.ngrok-free.app/api/v1/slack/interactions`
+
 ```text
 https://YOUR_NGROK_SUBDOMAIN.ngrok-free.app/api/v1/slack/interactions
 ```
@@ -116,9 +118,9 @@ Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
     - Short Description: Retrieve sentiment analysis message from channel
 ```
 
-**Well done! You have successfully integrated the Slack App with service.**
+**Well done!** You have successfully integrated the Slack App with service.
 
-**You can now test the app by sending negative message in channel and bot identifies the sentiment and reply to you.**
+You can now test the app by sending negative message in channel and bot identifies the sentiment and reply to you.
 
 ---
 

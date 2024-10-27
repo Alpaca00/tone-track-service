@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: alpaca00/tone-track-image
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    memory: "2024Mi"
+    cpu: "750m"
+
+env:
+  # app
+  SECRET_KEY: ""
+  API_KEY: ""
+  SPS: ""
+  TF_ENABLE_ONEDNN_OPTS: "0"
+  SLACK_SIGNING_SECRET: ""
+  SLACK_BOT_OAUTH_TOKEN: ""
+  # postgres
+  POSTGRES_USER: ""
+  POSTGRES_PASSWORD: ""
+  POSTGRES_DB: "tts"
+  POSTGRES_HOST: "{{ .Release.Name }}-postgres-service"
+  # redis
+  REDIS_HOST: "{{ .Release.Name }}-redis-service"
+  REDIS_PASSWORD: ""
+
+appPort: 5000
+postgresPort: 5432
+redisPort: 6379
+nginxPort: 80

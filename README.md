@@ -38,7 +38,7 @@ When the server is up and running, you can access the API at `localhost:80`
 ```curl
 curl --location 'http://0:80/api/v1/sentiment-analysis' \
 --header 'Content-Type: application/json' \
---header 'Authorization: <YOUR API KEY FROM env.txt or .env FILE volume>' \
+--header 'Authorization: <YOUR API KEY FROM .env FILE volume>' \
 --data '{"text": "Your hard work is noticed, and it brings results!", "sentiment_type": "vader"}'
 ```
 
@@ -121,6 +121,25 @@ Replace `YOUR_NGROK_SUBDOMAIN` with your Ngrok subdomain.
 **Well done!** You have successfully integrated the Slack App with service.
 
 You can now test the app by sending negative message in channel and bot identifies the sentiment and reply to you.
+
+---
+
+### 📦 Deployment
+
+#### Kubernetes
+To deploy the service to Kubernetes cluster, you can use the Helm chart provided in the `devops/helm` directory.
+
+For detailed instructions, refer to the [Helm README](devops/helm/README.md).
+
+
+#### Docker Compose (cloud instance)
+Alternatively, if you are using Docker Compose, you can deploy the service using the `user-setup.yml` file provided in the root directory.
+
+SSL certificate are required to configure the Slack App. You can generate them using this guide [here](https://mindsers.blog/en/post/https-using-nginx-certbot-docker/) and modify `user-setup.yml` & `nginx/conf/demo/user-setup.conf` files accordingly.
+
+---
+
+**Don't forget to update configuration settings by new URL in the Slack App settings after deployment.**
 
 ---
 

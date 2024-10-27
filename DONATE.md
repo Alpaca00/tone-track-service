@@ -9,7 +9,7 @@ Your contribution can help provide essential resources, education, and support t
 1. **Make a Donation**: Every donation, no matter the size, helps us deliver vital assistance to children in need. You can contribute through website:
    [Donate Here](https://childrenofthewar.org/eng)
 
-2. **Spread the Word**: Share our mission with your friends, family, and social media followers. Raising awareness is crucial in our fight to support these children.
+2. **Spread the Word**: Share mission with your friends, family, and social media followers. Raising awareness is crucial in our fight to support these children.
 
 3. **Corporate Sponsorship**: If you represent a business, consider partnering with us to make a difference. Corporate sponsorship can provide significant support to our programs and initiatives.
 

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.appPort }}
+          env:
+            # Application Environment Variables
+            - name: SECRET_KEY
+              value: {{ .Values.env.SECRET_KEY | quote }}
+            - name: API_KEY
+              value: {{ .Values.env.API_KEY | quote }}
+            - name: SPS
+              value: {{ .Values.env.SPS | quote }}
+            - name: TF_ENABLE_ONEDNN_OPTS
+              value: {{ .Values.env.TF_ENABLE_ONEDNN_OPTS | quote }}
+            - name: SLACK_SIGNING_SECRET
+              value: {{ .Values.env.SLACK_SIGNING_SECRET | quote }}
+            - name: SLACK_BOT_OAUTH_TOKEN
+              value: {{ .Values.env.SLACK_BOT_OAUTH_TOKEN | quote }}
+            # PostgreSQL Environment Variables
+            - name: POSTGRES_USER
+              value: {{ .Values.env.POSTGRES_USER | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.env.POSTGRES_PASSWORD | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.env.POSTGRES_DB | quote }}
+            - name: POSTGRES_HOST
+              value: {{ .Values.env.POSTGRES_HOST | quote }}
+            # Redis Environment Variable
+            - name: REDIS_HOST
+              value: {{ .Values.env.REDIS_HOST | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.env.REDIS_PASSWORD | quote }}
+          resources:
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
+          command: ["sh", "-c", "cd /app; python3 download_nltk_data.py; gunicorn -w 2 -k gthread --bind 0.0.0.0:{{ .Values.appPort }} wsgi:app --timeout 500"]
+
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: {{ .Values.postgresPort }}
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.env.POSTGRES_USER | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.env.POSTGRES_PASSWORD | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.env.POSTGRES_DB | quote }}
+
+        - name: redis
+          image: redis:7.4.1
+          ports:
+            - containerPort: {{ .Values.redisPort }}
+          env:
+            - name: REDIS_PASSWORD
+              value: {{ .Values.env.REDIS_PASSWORD | quote }}
+          command: ["redis-server", "--requirepass", "$REDIS_PASSWORD"]
+
+        - name: nginx
+          image: nginx:1.20.1
+          ports:
+            - containerPort: {{ .Values.nginxPort }}
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: main.conf
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/app.conf
+              subPath: app.conf
+
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ .Release.Name }}-nginx

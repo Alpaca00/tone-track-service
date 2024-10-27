@@ -1,0 +1,58 @@
+# App Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-app
+  ports:
+    - protocol: TCP
+      port: {{ .Values.appPort }}
+      targetPort: {{ .Values.appPort }}
+
+---
+
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-postgres-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-app
+  ports:
+    - protocol: TCP
+      port: {{ .Values.postgresPort }}
+      targetPort: {{ .Values.postgresPort }}
+
+---
+
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-redis-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-app
+  ports:
+    - protocol: TCP
+      port: {{ .Values.redisPort }}
+      targetPort: {{ .Values.redisPort }}
+
+---
+
+# Nginx Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nginx-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-app
+  ports:
+    - protocol: TCP
+      port: {{ .Values.nginxPort }}
+      targetPort: {{ .Values.nginxPort }}
+  type: LoadBalancer

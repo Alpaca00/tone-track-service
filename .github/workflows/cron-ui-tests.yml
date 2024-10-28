@@ -13,3 +13,4 @@ jobs:
       pip_cache_dir: ~/.cache/pip
       test_path: tests/ui
       report_name: ui-test-report
+    secrets: inherit

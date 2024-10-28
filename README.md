@@ -9,7 +9,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
 [![CI](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci.yml) &nbsp;
 [![CD](https://github.com/Alpaca00/tone-track-service/actions/workflows/cd.yml/badge.svg?branch=master)](https://github.com/Alpaca00/tone-track-service/actions/workflows/cd.yml) &nbsp;
-[![CD | Kubernetes](https://github.com/Alpaca00/tone-track-service/actions/workflows/cd-k8s.yml/badge.svg?branch=master)](https://github.com/Alpaca00/tone-track-service/actions/workflows/cd-k8s.yml)
 
 
 ## 📖 Description

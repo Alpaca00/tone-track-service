@@ -13,3 +13,5 @@ jobs:
       pip_cache_dir: ~/.cache/pip
       test_path: tests/api
       report_name: api-test-report
+    secrets:
+      API_KEY: ${{ secrets.API_KEY }}

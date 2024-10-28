@@ -9,6 +9,17 @@ on:
       dockerfile:
         required: true
         type: string
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+        description: "Docker Hub username"
+      DOCKER_PASSWORD:
+        required: true
+        description: "Docker Hub password"
+      GITHUB_TOKEN:
+        required: true
+        description: "GitHub token"
+
 
 jobs:
   release_and_docker:

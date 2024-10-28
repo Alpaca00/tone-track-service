@@ -15,6 +15,10 @@ on:
       report_name:
         required: true
         type: string
+    secrets:
+      API_KEY:
+          required: true
+          description: "API key for the authentication"
 
 jobs:
   test:

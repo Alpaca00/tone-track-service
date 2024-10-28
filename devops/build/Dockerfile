@@ -5,6 +5,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl
 
 COPY ../.. /app
+COPY ../../nltk_data /usr/local/share/nltk_data
 
 RUN /usr/local/bin/python -m pip install --upgrade pip \
  && pip install -r /app/requirements.txt

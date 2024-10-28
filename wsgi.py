@@ -9,7 +9,9 @@ from tts.extensions import config_tts as config
 
 
 app = SentimentAnalysisService(environment=config.project.environment)
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     app.run(
         host=config.resources.interface,
         port=config.resources.port,

@@ -23,7 +23,6 @@ services:
     command:
       sh -c "
         cd '/app';
-        python3 download_nltk_data.py;
         gunicorn -w 2 -k gthread --bind 0.0.0.0:5002 wsgi:app --timeout 500"
   postgres:
     image: postgres:15-alpine

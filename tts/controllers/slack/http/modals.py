@@ -14,9 +14,7 @@ from tts.models.slack_application import modal_view
 def open_modal(data: dict) -> jsonify:
     """Open a Slack modal for adding a channel message."""
     trigger_id = data.get("trigger_id")
-    client_slack.views_open(
-        trigger_id=trigger_id, view=modal_view.model_dump()
-    )
+    client_slack.views_open(trigger_id=trigger_id, view=modal_view.model_dump())
     return jsonify({}), 200
 
 

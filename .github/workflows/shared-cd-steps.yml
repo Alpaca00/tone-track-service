@@ -1,0 +1,64 @@
+name: Common CD Steps
+
+on:
+  workflow_call:
+    inputs:
+      docker_username:
+        required: true
+        type: string
+      docker_password:
+        required: true
+        type: string
+      version_file:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+
+jobs:
+  release_and_docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from config file
+        id: get_version
+        run: |
+          VERSION=$(grep '^version' ${{ inputs.version_file }} | sed 's/version = //')
+          echo $VERSION > version.txt
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Upload version artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: version.txt
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Log in to Docker Hub
+        run: echo ${{ inputs.docker_password }} | docker login -u ${{ inputs.docker_username }} --password-stdin
+
+      - name: Build Docker image with version tag
+        run: docker build -t ${{ inputs.docker_username }}/tone-track-image:${{ steps.get_version.outputs.VERSION }} -f ${{ inputs.dockerfile }} .
+
+      - name: Build Docker image with "latest" tag
+        run: docker build -t ${{ inputs.docker_username }}/tone-track-image:latest -f ${{ inputs.dockerfile }} .
+
+      - name: Push Docker image with version tag
+        run: docker push ${{ inputs.docker_username }}/tone-track-image:${{ steps.get_version.outputs.VERSION }}
+
+      - name: Push Docker image with "latest" tag
+        run: docker push ${{ inputs.docker_username }}/tone-track-image:latest

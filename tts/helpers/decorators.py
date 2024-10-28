@@ -2,6 +2,7 @@ from functools import wraps
 from flask import jsonify, request, current_app
 from pydantic import ValidationError
 from slack_sdk.errors import SlackApiError
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from tts.controllers.slack.http.constants import RESPONSE_ACTION_CLEAR
 from tts.helpers.constants import EnvironmentVariables
@@ -37,6 +38,8 @@ def handle_slack_exceptions(func):
             return jsonify(RESPONSE_ACTION_CLEAR), 404
         except SlackApiError:
             return jsonify(RESPONSE_ACTION_CLEAR), 503
+        except RedisConnectionError:
+            return jsonify(RESPONSE_ACTION_CLEAR), 504
         except Exception:  # noqa
             return jsonify(RESPONSE_ACTION_CLEAR), 500
 

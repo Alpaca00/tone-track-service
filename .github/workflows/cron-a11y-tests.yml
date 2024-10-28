@@ -2,40 +2,14 @@ name: CRON A11Y TESTS
 
 on:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: "0 7 * * *"
   workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
-    env:
-      PYTHON_VERSION: 3.12.2
-      PIP_CACHE_DIR: ~/.cache/pip
-      TF_ENABLE_ONEDNN_OPTS: 0
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
-          playwright install
-
-      - name: Run tests
-        run: |
-           pytest tests/accessibility
-
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: a11y-test-report
-          path: report.html
-          retention-days: 1
+    uses: ./.github/workflows/shared-cron-steps.yml
+    with:
+      python_version: "3.12.2"
+      pip_cache_dir: ~/.cache/pip
+      test_path: tests/accessibility
+      report_name: a11y-test-report

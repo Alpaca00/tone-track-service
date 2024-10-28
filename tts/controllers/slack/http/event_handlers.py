@@ -38,7 +38,7 @@ def handle_event_callback(data: dict) -> tuple:
                 message=message,
                 sentiment_result=sentiment_result,
                 message_to_user=existing_message,
-            )
+            ),
         )
 
     return jsonify({}), 200

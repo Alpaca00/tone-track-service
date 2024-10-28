@@ -12,3 +12,17 @@ __pycache__/
 
 # Environment variables
 .env
+
+
+# IDE
+.idea/
+.github/
+.git
+.gitignore
+
+# Docker
+.dockerignore
+
+# Pytest
+*.pytest_cache/
+*.html

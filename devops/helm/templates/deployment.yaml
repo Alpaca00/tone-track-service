@@ -39,10 +39,13 @@ spec:
             - name: POSTGRES_DB
               value: {{ .Values.env.POSTGRES_DB | quote }}
             - name: POSTGRES_HOST
-              value: {{ .Values.env.POSTGRES_HOST | quote }}
+              value: "{{ .Release.Name }}-postgres-service"
+
             # Redis Environment Variable
             - name: REDIS_HOST
-              value: {{ .Values.env.REDIS_HOST | quote }}
+              value: "{{ .Release.Name }}-redis-service"
+            - name: REDIS_PORT
+              value: {{ .Values.redisPort | quote }}
             - name: REDIS_PASSWORD
               value: {{ .Values.env.REDIS_PASSWORD | quote }}
           resources:
@@ -70,7 +73,7 @@ spec:
           env:
             - name: REDIS_PASSWORD
               value: {{ .Values.env.REDIS_PASSWORD | quote }}
-          command: ["redis-server", "--requirepass", "$REDIS_PASSWORD"]
+          command: ["redis-server", "--requirepass", "{{ .Values.env.REDIS_PASSWORD }}"]
 
         - name: nginx
           image: nginx:1.20.1

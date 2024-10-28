@@ -2,40 +2,14 @@ name: CRON API TESTS
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: "*/30 * * * *"
 
 jobs:
   test:
-    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
-
-    env:
-      PYTHON_VERSION: 3.12.2
-      PIP_CACHE_DIR: ~/.cache/pip
-      API_KEY: ${{ secrets.API_KEY }}
-      TF_ENABLE_ONEDNN_OPTS: 0
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
-
-      - name: Run tests
-        run: |
-          pytest tests/api
-
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-test-report
-          path: report.html
-          retention-days: 1
+    uses: ./.github/workflows/shared-cron-steps.yml
+    with:
+      python_version: "3.12.2"
+      pip_cache_dir: ~/.cache/pip
+      test_path: tests/api
+      report_name: api-test-report

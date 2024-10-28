@@ -153,7 +153,11 @@ class DatabaseManager:
     def update_channel_sentiment_message(channel_id: str, sentiment_message: str):
         """Update a channel sentiment message."""
         with SessionManager() as session:
-            channel = session.query(Channel).filter(Channel.channel_id == channel_id).first()
+            channel = (
+                session.query(Channel)
+                .filter(Channel.channel_id == channel_id)
+                .first()
+            )
             channel.sentiment_message = sentiment_message
             return channel
 

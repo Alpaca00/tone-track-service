@@ -35,6 +35,9 @@ docker compose --file user-setup.yml up -d
 ```
 
 When the server is up and running, you can access the API at `localhost:80`
+
+Replace `<YOUR API KEY FROM .env FILE volume>` with the API key from the `.env` file in the root directory.
+
 ```curl
 curl --location 'http://0:80/api/v1/sentiment-analysis' \
 --header 'Content-Type: application/json' \
@@ -68,7 +71,7 @@ User Token Scopes:
 
 Install the app to your workspace by `Install to Workspace` button.
 
-4. Add the following environment variables to the `.env` file:
+4. Add the following environment variables to the `.env` file in the root directory:
 - `SLACK_SIGNING_SECRET`  - your Slack App's signing secret from the `Basic Information` section.
 - `SLACK_BOT_OAUTH_TOKEN` - your Slack App's bot token from the `OAuth & Permissions` section.
 
@@ -127,19 +130,20 @@ You can now test the app by sending negative message in channel and bot identifi
 ### 📦 Deployment
 
 #### Kubernetes
-To deploy the service to Kubernetes cluster, you can use the Helm chart provided in the `devops/helm` directory.
+To deploy the service to Kubernetes cluster, you can use the Helm chart provided in the [devops/helm](devops/helm) directory.
 
 For detailed instructions, refer to the [Helm README](devops/helm/README.md).
 
 
 #### Docker Compose (cloud instance)
-Alternatively, if you are using Docker Compose, you can deploy the service using the `user-setup.yml` file provided in the root directory.
+Alternatively, if you are using Docker Compose, you can deploy the service using the [user-setup.yml](user-setup.yml) file provided in the root directory.
 
-SSL certificate are required to configure the Slack App. You can generate them using this guide [here](https://mindsers.blog/en/post/https-using-nginx-certbot-docker/) and modify `user-setup.yml` & `nginx/conf/demo/user-setup.conf` files accordingly.
 
----
+SSL certificate are required to configure the Slack App. You can generate them using this [guide](https://mindsers.blog/en/post/https-using-nginx-certbot-docker/) and modify [user-setup.yml](user-setup.yml) and [nginx](nginx/conf/demo/user-setup.conf) files.
 
-**Don't forget to update configuration settings by new URL in the Slack App settings after deployment.**
+
+##### Don't forget to update configuration settings by new URL in the Slack App settings after deployment.
+
 
 ---
 

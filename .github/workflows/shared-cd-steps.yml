@@ -16,9 +16,6 @@ on:
       DOCKER_PASSWORD:
         required: true
         description: "Docker Hub password"
-      GITHUB_TOKEN:
-        required: true
-        description: "GitHub token"
 
 
 jobs:

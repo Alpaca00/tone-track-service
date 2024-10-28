@@ -3,12 +3,6 @@ name: Common CD Steps
 on:
   workflow_call:
     inputs:
-      docker_username:
-        required: true
-        type: string
-      docker_password:
-        required: true
-        type: string
       version_file:
         required: true
         type: string
@@ -49,7 +43,7 @@ jobs:
           prerelease: false
 
       - name: Log in to Docker Hub
-        run: echo ${{ inputs.docker_password }} | docker login -u ${{ inputs.docker_username }} --password-stdin
+        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: Build Docker image with version tag
         run: docker build -t ${{ inputs.docker_username }}/tone-track-image:${{ steps.get_version.outputs.VERSION }} -f ${{ inputs.dockerfile }} .

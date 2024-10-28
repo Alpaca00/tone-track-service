@@ -7,8 +7,8 @@ from tts.helpers.constants import EnvironmentVariables
 class RedisDatabaseConfig:
     """The database configuration."""
 
-    host = "redis"
-    port = 6379
+    host = EnvironmentVariables.REDIS_HOST
+    port = EnvironmentVariables.REDIS_PORT
     db = 0
     password = EnvironmentVariables.REDIS_PASSWORD
 
@@ -28,7 +28,10 @@ class RedisClient:
     def connect(self):
         """Connect to Redis."""
         self.connection = redis.StrictRedis(
-            host=self.host, port=self.port, db=self.db, password=self.password
+            host=self.host,
+            port=int(self.port),
+            db=self.db,
+            password=self.password,
         )
 
     def close(self):

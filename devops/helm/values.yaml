@@ -22,10 +22,9 @@ env:
   POSTGRES_USER: ""
   POSTGRES_PASSWORD: ""
   POSTGRES_DB: "tts"
-  POSTGRES_HOST: "{{ .Release.Name }}-postgres-service"
   # redis
-  REDIS_HOST: "{{ .Release.Name }}-redis-service"
   REDIS_PASSWORD: ""
+  REDIS_PORT: 6379
 
 appPort: 5000
 postgresPort: 5432

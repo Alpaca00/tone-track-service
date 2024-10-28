@@ -1,4 +1,7 @@
-from .verification import SlackVerificationRequest, SlackVerificationChallengeResponse
+from .verification import (
+    SlackVerificationRequest,
+    SlackVerificationChallengeResponse,
+)
 from .interaction.add import SlackInteractionModalResponse
 from .common_modal import modal_view, modal_view_callback_id
 

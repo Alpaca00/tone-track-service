@@ -3,13 +3,13 @@
 This configuration utilizes Helm to deploy the application to a Kubernetes cluster and retrieve the necessary image from the [Docker Hub repository](https://hub.docker.com/repository/docker/alpaca00/tone-track-image/general).
 
 ### Prerequisites
-- Ensure you have [Helm](https://helm.sh/docs/intro/install/) `v3.16.2 or later` installed on your system.
+- Ensure you have [Helm](https://helm.sh/docs/intro/install/) `>= v3.16.2` installed on your system.
 
 ### Installation Steps
 
 1. **Update Values (Optional)**
 
-- Edit the `values.yaml` or `configmap.yaml` files to configure the necessary environment variables 
+- Edit the [values.yaml](values.yaml) or [configmap.yaml](templates/configmap.yaml) files to configure the necessary environment variables 
 and any custom configurations or ConfigMaps you want to use in the deployment for Nginx, Redis, PostgreSQL, and your application.
 This allows for easier management and customization of your deployment settings.
 
@@ -32,6 +32,7 @@ Replace `VALUE_FROM_SLACK_BOT_SETTINGS` with the actual values for the Slack sig
 
 ```bash
 helm install tone-track ./devops/helm \
+--namespace tone-track --create-namespace \
 --set env.SLACK_SIGNING_SECRET="VALUE_FROM_SLACK_BOT_SETTINGS" \
 --set env.SLACK_BOT_OAUTH_TOKEN="VALUE_FROM_SLACK_BOT_SETTINGS" \
 --set env.SECRET_KEY="VALUE_FROM_ENV_FILE" \
@@ -49,15 +50,26 @@ helm install tone-track ./devops/helm \
 - Check the status of the deployment using the following command:
 
 ```bash
-kubectl get pods
-kubectl get services
+kubectl -n tone-track get pods
+kubectl -n tone-track get services
 ```
 
 5. **Accessing the Application**
 
 - Once the deployment is successful, you can access the application using the service URL or the external IP address.
 
-6. **Updating the Deployment**
+To check the health status of the service, run the following command:
+
+```bash
+curl --location 'https://<cluster IP>:<tone-track-service PORT>/api/v1/health'
+```
+
+
+##### Additional configurations can be made to the deployment by modifying necessary values in the [deployment.yaml](templates/deployment.yaml) and [values.yaml](values.yaml) files, such as resource limits, ingress settings, etc.
+
+---
+
+**Updating the Deployment**
 
 - To update the deployment with new configurations or changes, use the following command:
 
@@ -67,7 +79,7 @@ helm upgrade tone-track ./devops/helm \
 --set env.SLACK_BOT_OAUTH_TOKEN="VALUE_FROM_SLACK_BOT_SETTINGS"
 ```
 
-7. **Uninstalling the Deployment**
+**Uninstalling the Deployment**
 
 - To uninstall the deployment, use the following command:
 

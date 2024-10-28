@@ -6,82 +6,10 @@ on:
       - master
 
 jobs:
-  create_release:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get version from config file
-        id: get_version
-        run: |
-          VERSION=$(grep '^version' config.ini | sed 's/version = //')
-          echo $VERSION > version.txt
-          echo "::set-output name=VERSION::$VERSION"
-
-      - name: Upload version artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: version
-          path: version.txt
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: false
-          prerelease: false
-
-  docker_publish:
-    needs: create_release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Download version artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: version
-
-      - name: Read version from file
-        id: read_version
-        run: |
-          VERSION=$(cat version.txt)
-          echo "::set-output name=VERSION::$VERSION"
-
-      - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-      - name: Create file with secrets
-        run: |
-          echo "API_KEY=${{ secrets.API_KEY }}" > .env
-          echo "SPS=${{ secrets.SPS }}" >> .env
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-          echo "SLACK_BOT_OAUTH_TOKEN=${{ secrets.SLACK_BOT_OAUTH_TOKEN }}" >> .env
-          echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}" >> .env
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
-          echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
-          echo "ALLOWED_IPS=${{ secrets.ALLOWED_IPS }}" >> .env
-
-      - name: Build Docker image with version tag
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }} -f devops/build/Dockerfile .
-
-      - name: Build Docker image with "latest" tag
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest -f devops/build/Dockerfile .
-
-      - name: Push Docker image with version tag
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.read_version.outputs.VERSION }}
-
-      - name: Push Docker image with "latest" tag
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest
+  release_and_docker:
+    uses: ./.github/workflows/shared-cd-steps.yml
+    with:
+      docker_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      docker_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      version_file: config.ini
+      dockerfile: devops/build/Dockerfile

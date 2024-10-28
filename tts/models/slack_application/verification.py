@@ -9,7 +9,7 @@ class SlackVerificationRequest(BaseModel):
     type: constr(strip_whitespace=True, pattern=r"^url_verification$")
 
 
-
 class SlackVerificationChallengeResponse(BaseModel):
     """Model for Slack URL verification challenge response."""
+
     challenge: constr(min_length=10)

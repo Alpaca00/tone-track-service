@@ -39,3 +39,5 @@ jobs:
           name: load-test-report
           path: locust-report.html
           retention-days: 1
+        secrets:
+          API_KEY: ${{ secrets.API_KEY }}

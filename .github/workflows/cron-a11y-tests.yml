@@ -13,4 +13,5 @@ jobs:
       pip_cache_dir: ~/.cache/pip
       test_path: tests/accessibility
       report_name: a11y-test-report
-    secrets: inherit
+    secrets:
+      API_KEY: ${{ secrets.API_KEY }}

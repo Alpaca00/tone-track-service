@@ -16,14 +16,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Get version from config file
         id: get_version
         run: |
-          VERSION=$(grep '^version' ${{ inputs.version_file }} | sed 's/version = //')
-          echo $VERSION > version.txt
-          echo "::set-output name=VERSION::$VERSION"
+          VERSION=$(grep '^version' "${{ inputs.version_file }}" | sed 's/version = //')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT  # Set as an output
 
       - name: Upload version artifact
         uses: actions/upload-artifact@v4
@@ -37,22 +37,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
 
       - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Build Docker image with version tag
-        run: docker build -t ${{ inputs.docker_username }}/tone-track-image:${{ steps.get_version.outputs.VERSION }} -f ${{ inputs.dockerfile }} .
+        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:${{ env.VERSION }}" -f "${{ inputs.dockerfile }}" .
 
       - name: Build Docker image with "latest" tag
-        run: docker build -t ${{ inputs.docker_username }}/tone-track-image:latest -f ${{ inputs.dockerfile }} .
+        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:latest" -f "${{ inputs.dockerfile }}" .
 
       - name: Push Docker image with version tag
-        run: docker push ${{ inputs.docker_username }}/tone-track-image:${{ steps.get_version.outputs.VERSION }}
+        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:${{ env.VERSION }}"
 
       - name: Push Docker image with "latest" tag
-        run: docker push ${{ inputs.docker_username }}/tone-track-image:latest
+        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:latest"

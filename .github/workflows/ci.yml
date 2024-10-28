@@ -17,33 +17,34 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check for changes in the tts folder
         id: check_changes
         run: |
-          if git diff --quiet HEAD^ HEAD -- tts/; then
+          git fetch origin master --depth=1
+          if git diff --quiet origin/master HEAD -- tts/; then
             echo "No changes in the tts folder."
-            echo "::set-output name=skip_job::true"
+            echo "skip_job=true" >> $GITHUB_ENV
           else
             echo "Changes detected in the tts folder."
-            echo "::set-output name=skip_job::false"
+            echo "skip_job=false" >> $GITHUB_ENV
           fi
 
       - name: Set up Python
-        if: steps.check_changes.outputs.skip_job == 'false'
-        uses: actions/setup-python@v2
+        if: env.skip_job == 'false'
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        if: steps.check_changes.outputs.skip_job == 'false'
+        if: env.skip_job == 'false'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
           python3 download_nltk_data.py
 
       - name: Run tests
-        if: steps.check_changes.outputs.skip_job == 'false'
+        if: env.skip_job == 'false'
         run: |
           pytest tests/unittest

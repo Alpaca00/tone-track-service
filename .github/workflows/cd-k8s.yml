@@ -14,3 +14,4 @@ jobs:
       docker_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       version_file: config.ini
       dockerfile: devops/build/DockerfileK8S
+    secrets: inherit

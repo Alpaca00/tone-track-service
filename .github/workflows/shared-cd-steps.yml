@@ -14,6 +14,10 @@ jobs:
   release_and_docker:
     runs-on: ubuntu-latest
 
+    env:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,19 +47,16 @@ jobs:
           prerelease: false
 
       - name: Log in to Docker Hub
-        env:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Build Docker image with version tag
-        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:${{ env.VERSION }}" -f "${{ inputs.dockerfile }}" .
+        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-image:${{ env.VERSION }}" -f "${{ inputs.dockerfile }}" .
 
       - name: Build Docker image with "latest" tag
-        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:latest" -f "${{ inputs.dockerfile }}" .
+        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-image:latest" -f "${{ inputs.dockerfile }}" .
 
       - name: Push Docker image with version tag
-        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:${{ env.VERSION }}"
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:${{ env.VERSION }}"
 
       - name: Push Docker image with "latest" tag
-        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-image:latest"
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:latest"

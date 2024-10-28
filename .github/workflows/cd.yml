@@ -9,8 +9,5 @@ jobs:
   release_and_docker:
     uses: ./.github/workflows/shared-cd-steps.yml
     with:
-      docker_username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      docker_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       version_file: config.ini
       dockerfile: devops/build/Dockerfile
-    secrets: inherit

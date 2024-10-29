@@ -18,11 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: List available artifacts
-        run: |
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" | jq '.artifacts[] | {id: .id, name: .name}'
-
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:

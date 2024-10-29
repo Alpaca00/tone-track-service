@@ -8,6 +8,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
 [![ci/cd](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml) &nbsp;
+[![codecov](https://codecov.io/github/Alpaca00/tone-track-service/graph/badge.svg?token=6DRXV5SZ7C)](https://codecov.io/github/Alpaca00/tone-track-service)
 
 
 ## 📖 Description

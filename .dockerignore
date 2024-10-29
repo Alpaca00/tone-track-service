@@ -26,3 +26,7 @@ __pycache__/
 # Pytest
 *.pytest_cache/
 *.html
+.coverage
+coverage.xml
+.coveragerc
+ctrf-report.json

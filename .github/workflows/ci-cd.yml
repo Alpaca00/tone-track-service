@@ -47,9 +47,19 @@ jobs:
           pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
           python3 download_nltk_data.py
 
-      - name: Run tests
+      - name: Run tests with coverage
         if: steps.check_changes.outputs.skip_tests == 'false'
-        run: pytest tests/unittest
+        run: pytest --cov=tts tests/unittest --cov-report=xml
+
+      - name: Publish test summary results
+        if: steps.check_changes.outputs.skip_tests == 'false'
+        run: npx github-actions-ctrf ctrf-report.json
+
+      - name: Upload results to Codecov
+        if: steps.check_changes.outputs.skip_tests == 'false'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     name: Create Release and Publish Docker Image

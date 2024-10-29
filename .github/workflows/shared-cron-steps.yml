@@ -52,5 +52,5 @@ jobs:
           path: report.html
           retention-days: 1
 
-      - name: Publish Test Summary Results
-        run: npx github-actions-ctrf ctrf/ctrf-report.json
+      - name: Publish test summary results
+        run: npx github-actions-ctrf ctrf-report.json

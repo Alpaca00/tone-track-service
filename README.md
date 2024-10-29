@@ -7,7 +7,7 @@
 **Email:** [tonetrack.uno@gmail.com](mailto:tonetrack.uno@gmail.com)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
-[![CI/CD](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml) &nbsp;
+[![ci/cd](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml) &nbsp;
 
 
 ## 📖 Description

@@ -51,3 +51,6 @@ jobs:
           name: ${{ inputs.report_name }}
           path: report.html
           retention-days: 1
+
+      - name: Publish Test Summary Results
+        run: npx github-actions-ctrf ctrf/ctrf-report.json

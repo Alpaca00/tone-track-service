@@ -4,7 +4,7 @@
 
 **Website:** [https://tone-track.uno](https://tone-track.uno)
 
----
+**Email:** [tonetrack.uno@gmail.com](mailto:tonetrack.uno@gmail.com)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
 [![CI](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci.yml) &nbsp;
@@ -160,8 +160,3 @@ This project is licensed under the [Apache License](LICENSE) - see the LICENSE f
 ### ❤️ DONATE
 
 If you found this project helpful or you learned something from the source code and want to thank me, please supporting this [Charity](DONATE.md)
-
----
-### 📧 Contact
-
-If you have any questions, suggestions, or need help, feel free to contact me at [support](mailto:support.tone-track.uno@gmail.com)

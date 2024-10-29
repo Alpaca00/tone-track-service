@@ -61,7 +61,7 @@ kubectl -n tone-track get services
 To check the health status of the service, run the following command:
 
 ```bash
-curl --location 'https://<cluster IP>:<tone-track-service PORT>/api/v1/health'
+curl --location 'https://<cluster IP>:<nginx-service PORT>/api/v1/health'
 ```
 
 
@@ -75,8 +75,15 @@ curl --location 'https://<cluster IP>:<tone-track-service PORT>/api/v1/health'
 
 ```bash
 helm upgrade tone-track ./devops/helm \
+--namespace tone-track --create-namespace \
 --set env.SLACK_SIGNING_SECRET="VALUE_FROM_SLACK_BOT_SETTINGS" \
---set env.SLACK_BOT_OAUTH_TOKEN="VALUE_FROM_SLACK_BOT_SETTINGS"
+--set env.SLACK_BOT_OAUTH_TOKEN="VALUE_FROM_SLACK_BOT_SETTINGS" \
+--set env.SECRET_KEY="VALUE_FROM_ENV_FILE" \
+--set env.API_KEY="VALUE_FROM_ENV_FILE" \
+--set env.SPS="VALUE_FROM_ENV_FILE" \
+--set env.POSTGRES_USER="root" \
+--set env.POSTGRES_PASSWORD="VALUE_FROM_ENV_FILE" \
+--set env.REDIS_PASSWORD="VALUE_FROM_ENV_FILE"
 ```
 
 **Uninstalling the Deployment**

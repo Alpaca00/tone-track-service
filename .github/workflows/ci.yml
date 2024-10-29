@@ -6,45 +6,46 @@ on:
       - master
 
 jobs:
-  test:
+  test_and_build:
     runs-on: ubuntu-latest
 
     env:
       PYTHON_VERSION: 3.12.2
-      PIP_CACHE_DIR: ~/.cache/pip
       API_KEY: ${{ secrets.API_KEY }}
-      TF_ENABLE_ONEDNN_OPTS: 0
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for changes in the tts folder
-        id: check_changes
-        run: |
-          git fetch origin master --depth=1
-          if git diff --quiet origin/master HEAD -- tts/; then
-            echo "No changes in the tts folder."
-            echo "skip_job=true" >> $GITHUB_ENV
-          else
-            echo "Changes detected in the tts folder."
-            echo "skip_job=false" >> $GITHUB_ENV
-          fi
-
       - name: Set up Python
-        if: env.skip_job == 'false'
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        if: env.skip_job == 'false'
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
+          pip install -r requirements.txt
           python3 download_nltk_data.py
 
       - name: Run tests
-        if: env.skip_job == 'false'
+        run: pytest tests/unittest
+
+      - name: Log in to Docker Hub
+        if: ${{ success() }}
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Build Docker image
+        if: ${{ success() }}
+        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" -f devops/build/Dockerfile .
+
+      - name: Save Docker image as artifact
+        if: ${{ success() }}
         run: |
-          pytest tests/unittest
+          docker save "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" | gzip > tone-track-image.tar.gz
+        uses: actions/upload-artifact@v4
+        with:
+          name: tone-track-image
+          path: tone-track-image.tar.gz

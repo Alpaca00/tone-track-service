@@ -1,0 +1,107 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHON_VERSION: 3.12.2
+      PIP_CACHE_DIR: ~/.cache/pip
+      API_KEY: ${{ secrets.API_KEY }}
+      TF_ENABLE_ONEDNN_OPTS: 0
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes in the tts folder
+        id: check_changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- tts/; then
+            echo "No changes in the tts folder."
+            echo "::set-output name=skip_tests::true"
+          else
+            echo "Changes detected in the tts folder."
+            echo "::set-output name=skip_tests::false"
+          fi
+
+      - name: Set up Python
+        if: steps.check_changes.outputs.skip_tests == 'false'
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        if: steps.check_changes.outputs.skip_tests == 'false'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --cache-dir ${{ env.PIP_CACHE_DIR }}
+          python3 download_nltk_data.py
+
+      - name: Run tests
+        if: steps.check_changes.outputs.skip_tests == 'false'
+        run: pytest tests/unittest
+
+  release:
+    name: Create Release and Publish Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+
+    if: github.event_name == 'push'
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from config file
+        id: get_version
+        run: |
+          VERSION=$(grep '^version' config.ini | sed 's/version = //')
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Create file with secrets
+        run: |
+          echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}" > .env
+          echo "SLACK_BOT_OAUTH_TOKEN=${{ secrets.SLACK_BOT_OAUTH_TOKEN }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
+          echo "SPS=${{ secrets.SPS }}" >> .env
+          echo "POSTGRES_USER=root" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
+
+      - name: Build Docker image with version tag
+        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.get_version.outputs.VERSION }}" -f devops/build/Dockerfile .
+
+      - name: Push Docker image with version tag
+        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.get_version.outputs.VERSION }}"
+
+      - name: Push Docker image with "latest" tag
+        run: docker push "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest"

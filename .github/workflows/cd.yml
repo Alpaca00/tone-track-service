@@ -6,7 +6,6 @@ on:
 jobs:
   push_to_docker:
     runs-on: ubuntu-latest
-    needs: test_and_build
 
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -16,11 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: List available artifacts
+        run: |
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" | jq '.artifacts[] | {id: .id, name: .name}'
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
           name: tone-track-service
-          path: tone-track-service.tar
 
       - name: Load Docker image
         run: docker load -i tone-track-service.tar

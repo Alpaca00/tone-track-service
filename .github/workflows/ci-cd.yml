@@ -97,6 +97,9 @@ jobs:
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
           echo "TF_ENABLE_ONEDNN_OPTS=0" >> .env
 
+      - name: Build Docker image with "latest" tag
+        run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:latest" -f devops/build/Dockerfile .
+
       - name: Build Docker image with version tag
         run: docker build -t "${{ secrets.DOCKER_HUB_USERNAME }}/tone-track-service:${{ steps.get_version.outputs.VERSION }}" -f devops/build/Dockerfile .
 

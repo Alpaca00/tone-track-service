@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - master
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 jobs:
   test_and_build:
@@ -40,15 +40,13 @@ jobs:
 
       - name: Build Docker image
         if: ${{ success() }}
-        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" -f devops/build/Dockerfile .
+        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-service:ci-${{ github.sha }}" -f devops/build/Dockerfile .
 
-      - name: Save Docker image as artifact
-        if: ${{ success() }}
-        run: |
-          docker save "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" | gzip > tone-track-image.tar.gz
+      - name: Save Docker image as tar file
+        run: docker save "${{ env.DOCKER_USERNAME }}/tone-track-service:ci-${{ github.sha }}" -o tone-track-service.tar
 
       - name: Upload Docker image as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tone-track-image
-          path: tone-track-image.tar.gz
+          name: tone-track-service
+          path: tone-track-service.tar

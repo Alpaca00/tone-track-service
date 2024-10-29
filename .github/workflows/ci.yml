@@ -9,6 +9,7 @@ on:
 jobs:
   test_and_build:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
 
     env:
       PYTHON_VERSION: 3.12.2

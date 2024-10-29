@@ -20,6 +20,9 @@ jobs:
         with:
           name: tone-track-image
 
+      - name: Unzip Docker image artifact
+        run: unzip tone-track-image.zip
+
       - name: Load Docker image
         run: docker load -i tone-track-image.tar.gz
 

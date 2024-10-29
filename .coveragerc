@@ -1,0 +1,16 @@
+[run]
+branch = True
+source = tts
+
+[report]
+omit =
+    */__init__.py
+
+show_missing = True
+skip_covered = True
+
+[html]
+directory = .
+
+[xml]
+output = coverage.xml

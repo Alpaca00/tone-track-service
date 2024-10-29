@@ -1,4 +1,4 @@
-name: CD for Kubernetes
+name: CD PUBLIC
 
 on:
   workflow_dispatch:
@@ -8,10 +8,27 @@ on:
 
 jobs:
   release_and_docker:
-    uses: ./.github/workflows/shared-cd-steps.yml
-    with:
-      version_file: config.ini
-      dockerfile: devops/build/DockerfileK8S
-    secrets:
+    runs-on: ubuntu-latest
+
+    env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Build Docker image with SHA tag
+        run: docker build -t "${{ env.DOCKER_USERNAME }}/tone-track-image:k8s-${{ github.sha }}" -f devops/build/DockerfileK8S .
+
+      - name: Tag Docker image as latest
+        run: docker tag "${{ env.DOCKER_USERNAME }}/tone-track-image:k8s-${{ github.sha }}" "${{ env.DOCKER_USERNAME }}/tone-track-image:latest"
+
+      - name: Push Docker image with SHA tag
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:k8s-${{ github.sha }}"
+
+      - name: Push Docker image as latest
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:latest"

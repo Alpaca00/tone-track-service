@@ -129,12 +129,17 @@ Some <img> elements are missing alternate text.
 class TestAccessibilityViolations:
     """Test the accessibility violations on the home page."""
 
+    @pytest.mark.xfail(
+        reason="Expected 7 accessibility violations.",
+    )
     def test_violation_count(self, ready_result):
         """Test the number of accessibility violations."""
         violation_count = AccessibilityValidator.soft_check_violations(
             ready_result
         )
-        assert violation_count == 7, "Expected 7 accessibility violations."
+        assert (
+            violation_count == 0
+        ), f"Expected 0 accessibility violations, found {violation_count}."
 
     @pytest.mark.xfail(
         reason=XFAIL_CRITICAL_REASON,

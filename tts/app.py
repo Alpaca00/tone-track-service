@@ -82,7 +82,7 @@ class SentimentAnalysisService(Monostate):
         """Setup the web route for the application."""
 
         @self.app.route("/")
-        def web_resource() -> tuple[str, int]:
+        def web_resource() -> tuple:
             """Return the Page rendered by the template."""
             return render_template("base.html"), 200
 
@@ -90,7 +90,7 @@ class SentimentAnalysisService(Monostate):
         """Block attack vectors from being accessed."""
 
         @self.app.before_request
-        def attack_vector() -> tuple[Response, int]:
+        def attack_vector() -> tuple:
             message = config_tts.project.attack_vector_message
             sensitive_files = [
                 "/.env",

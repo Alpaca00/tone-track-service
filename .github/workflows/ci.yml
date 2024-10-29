@@ -46,7 +46,7 @@ jobs:
         run: docker save "${{ env.DOCKER_USERNAME }}/tone-track-service:ci-${{ github.sha }}" -o tone-track-service-${{ github.sha }}.tar
 
       - name: Upload Docker image as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: tone-track-service-${{ github.sha }}
           path: tone-track-service-${{ github.sha }}.tar

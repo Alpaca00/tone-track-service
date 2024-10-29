@@ -1,10 +1,7 @@
-name: CD PUBLIC
+name: CI/CD PUBLIC
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
   release_and_docker:

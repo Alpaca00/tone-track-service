@@ -21,10 +21,10 @@ jobs:
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: tone-track-service
+          name: tone-track-service-${{ github.event.workflow_run.head_commit.id }}
 
       - name: Load Docker image
-        run: docker load -i tone-track-service.tar
+        run: docker load -i tone-track-service-${{ github.event.workflow_run.head_commit.id }}.tar
 
       - name: Get version from config file
         id: get_version

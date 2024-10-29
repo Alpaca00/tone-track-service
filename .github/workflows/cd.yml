@@ -1,16 +1,47 @@
 name: CD
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
 
 jobs:
-  release_and_docker:
-    uses: ./.github/workflows/shared-cd-steps.yml
-    with:
-      version_file: config.ini
-      dockerfile: devops/build/Dockerfile
-    secrets:
+  push_to_docker:
+    runs-on: ubuntu-latest
+
+    env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tone-track-image
+
+      - name: Load Docker image
+        run: docker load -i tone-track-image.tar.gz
+
+      - name: Get version from config file
+        id: get_version
+        run: |
+          VERSION=$(grep '^version' config.ini | sed 's/version = //')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Tag Docker image with version and latest
+        run: |
+          docker tag "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" "${{ env.DOCKER_USERNAME }}/tone-track-image:${{ env.VERSION }}"
+          docker tag "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" "${{ env.DOCKER_USERNAME }}/tone-track-image:latest"
+
+      - name: Push Docker image with version tag
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:${{ env.VERSION }}"
+
+      - name: Push Docker image with "latest" tag
+        run: docker push "${{ env.DOCKER_USERNAME }}/tone-track-image:latest"

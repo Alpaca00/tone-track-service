@@ -46,6 +46,8 @@ jobs:
         if: ${{ success() }}
         run: |
           docker save "${{ env.DOCKER_USERNAME }}/tone-track-image:ci-${{ github.sha }}" | gzip > tone-track-image.tar.gz
+
+      - name: Upload Docker image as artifact
         uses: actions/upload-artifact@v4
         with:
           name: tone-track-image

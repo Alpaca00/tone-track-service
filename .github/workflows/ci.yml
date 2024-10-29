@@ -1,14 +1,14 @@
 name: CI
 
 on:
-  pull_request:
+  push:
     branches:
       - master
-    types: [opened, reopened, synchronize]
 
 jobs:
   test_and_build:
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'CI-CD')
 
     env:
       PYTHON_VERSION: 3.12.2

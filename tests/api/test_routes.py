@@ -1,11 +1,12 @@
 import pytest
+from requests.exceptions import RequestException, HTTPError
 
 from tests.constants import Endpoint
 from tts.helpers.constants import EnvironmentVariables
 
 
 class TestSmokeApiRoutes:
-    """Test the API routes."""
+    """Smoke test the API routes."""
 
     @pytest.mark.health_check_api
     def test_health_check(self, client):
@@ -69,19 +70,51 @@ class TestSmokeApiRoutes:
         """Test the proxy sentiment analysis OPTIONS endpoint."""
         request = client.options(Endpoint.PROXY_SENTIMENT_ANALYSIS)
 
-        error_message = "The proxy sentiment analysis OPTIONS endpoint did not return {}, check in the sentiment_controller.py file."
-
         response_value, response_code = request
 
-        assert response_code == 204, error_message.format(response_code)
+        error_message_template = (
+            "The proxy sentiment analysis OPTIONS endpoint did not return {}, "
+            "check in the sentiment_controller.py file."
+        )
 
-        assert "Access-Control-Allow-Origin" in response_value, error_message
-        assert "Access-Control-Allow-Methods" in response_value, error_message
-        assert "Access-Control-Allow-Headers" in response_value, error_message
-        assert (
-            "GET, POST, OPTIONS" == response_value["Access-Control-Allow-Methods"]
-        ), error_message
-        assert (
-            "Content-Type, Authorization"
-            == response_value["Access-Control-Allow-Headers"]
-        ), error_message
+        assert response_code == 204, error_message_template.format(response_code)
+
+        expected_headers = {
+            "Access-Control-Allow-Origin": True,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        }
+
+        for header, expected_value in expected_headers.items():
+            if expected_value is True:
+                assert header in response_value, error_message_template
+            else:
+                assert (
+                    response_value[header] == expected_value
+                ), error_message_template
+
+    @pytest.mark.parametrize(
+        "endpoint",
+        [
+            "events",
+            "interactions",
+            "commands",
+            "verification",
+        ],
+        ids=[
+            "events",
+            "interactions",
+            "commands",
+            "verification",
+        ],
+    )
+    @pytest.mark.slack_endpoints_api
+    def test_slack_endpoints(self, client, endpoint):
+        """Test the Slack endpoints."""
+        try:
+            client.post(f"api/v1/slack/{endpoint}")
+
+        except RequestException as e:
+            if isinstance(e, HTTPError):
+                assert e.response.status_code == 403
+                assert " UNAUTHORIZED" in e.response.json()["error"]

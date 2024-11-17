@@ -4,6 +4,8 @@
 
 **Website:** [https://tone-track.uno](https://tone-track.uno)
 
+**Cross-platform mobile application:** [Tone Track](https://github.com/Alpaca00/tone-track-app/releases)
+
 **Email:** [tonetrack.uno@gmail.com](mailto:tonetrack.uno@gmail.com)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
@@ -20,12 +22,16 @@ Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](htt
 ### 🌐 Features
 
 - **sentiment analysis service**: Accurately determines the sentiment (positive, negative, neutral) of the input text.
-- **tone-track**: The Slack App that integrates with this service to provide sentiment analysis for Slack messages.
+- **flutter app**: A Mobile app that integrates with this service to provide sentiment analysis and handle user diary entries.
+- **slack app**: The Slack App that integrates with this service to provide sentiment analysis for Slack messages.
 - **web interface**: A simple web interface that allows users to interact with the sentiment analysis service.
 
 **Models supported only english language for now:**
 - **VADER**: A rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media.
 - **BERT**: A transformer model that is fine-tuned to perform sentiment analysis on text data.
+
+
+[Tone Track](https://github.com/Alpaca00/tone-track-app/releases) - A diary application that analyzes entries based on sentiment analysis, helping users track and understand their emotional states over time.
 
 ---
 

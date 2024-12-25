@@ -9,7 +9,7 @@ pydantic==2.9.2
 python-dotenv==1.0.1
 # lower version of gunicorn is used to avoid the error of wsgi file not found, todo - fix this and upgrade gunicorn
 # https://osv.dev/vulnerability/GHSA-w3h3-4rj7-4ph4
-gunicorn==20.1.0
+gunicorn==22.0.0
 langdetect==1.0.9
 slack_sdk==3.33.1
 SQLAlchemy==2.0.36

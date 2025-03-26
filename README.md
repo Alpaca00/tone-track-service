@@ -2,24 +2,18 @@
 
 **A Basic HTTP Server for Tracking Sentiment of Text Data.**
 
-**Website:** [https://tone-track.uno](https://tone-track.uno)
-
-**Cross-platform mobile application:** [Tone Track](https://github.com/Alpaca00/tone-track-app/releases)
-
-**Email:** [tonetrack.uno@gmail.com](mailto:tonetrack.uno@gmail.com)
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) &nbsp;
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) &nbsp;
 [![ci/cd](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Alpaca00/tone-track-service/actions/workflows/ci-cd.yml) &nbsp;
 [![codecov](https://codecov.io/github/Alpaca00/tone-track-service/graph/badge.svg?token=6DRXV5SZ7C)](https://codecov.io/github/Alpaca00/tone-track-service)
 
 
-## 📖 Description
+## Description
 
 **Service Tone Track** is a heavyweight HTTP server designed to track the sentiment of text data. 
 
 Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](https://huggingface.co/transformers/) libraries, this service provides a straightforward way to analyze the sentiment of any given text.
 
-### 🌐 Features
+### Features
 
 - **sentiment analysis service**: Accurately determines the sentiment (positive, negative, neutral) of the input text.
 - **flutter app**: A Mobile app that integrates with this service to provide sentiment analysis and handle user diary entries.
@@ -35,7 +29,7 @@ Leveraging the power of the [NLTK](https://www.nltk.org/) and [Transformers](htt
 
 ---
 
-### 🛠️ Installation instructions and running the server on your local machine
+### Installation instructions and running the server on your local machine
 
 To install the required dependencies, run the following commands:
 
@@ -64,7 +58,7 @@ A successful response will look like this:
 
 ---
 
-### 📩 Demo integration and running your Slack App on local machine
+### Demo integration and running your Slack App on local machine
 
 To integrate the Slack App with the service, you need to create a Slack App and install it on your workspace.
 
@@ -138,7 +132,7 @@ You can now test the app by sending negative message in channel and bot identifi
 
 ---
 
-### 📦 Deployment
+### Deployment
 
 #### Kubernetes
 To deploy the service to Kubernetes cluster, you can use the Helm chart provided in the [devops/helm](devops/helm) directory.
@@ -158,11 +152,5 @@ SSL certificate are required to configure the Slack App. You can generate them u
 
 ---
 
-### 📄 License
-This project is licensed under the [Apache License](LICENSE) - see the LICENSE file for details.
-
----
-
-### ❤️ DONATE
-
-If you found this project helpful or you learned something from the source code and want to thank me, please supporting this [Charity](DONATE.md)
+### License
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.

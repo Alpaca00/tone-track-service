@@ -1,6 +1,6 @@
 ## Deployment to Kubernetes
 
-This configuration utilizes Helm to deploy the application to a Kubernetes cluster and retrieve the necessary image from the [Docker Hub repository](https://hub.docker.com/repository/docker/alpaca00/tone-track-image/general).
+This configuration utilizes Helm to deploy the application to a Kubernetes cluster. The image can be retrieved either from your own Docker Hub repository or by using a locally built image.
 
 ### Prerequisites
 - Ensure you have [Helm](https://helm.sh/docs/intro/install/) `>= v3.16.2` installed on your system.
